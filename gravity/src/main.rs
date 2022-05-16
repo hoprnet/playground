@@ -1,5 +1,5 @@
-use tera::{Tera, Context};
-use actix_web::{error, Error, get, web, App, HttpRequest, HttpResponse, HttpServer};
+use actix_web::{error, get, web, App, Error, HttpRequest, HttpResponse, HttpServer};
+use tera::{Context, Tera};
 
 struct AppState {
     template: Tera,
@@ -7,8 +7,9 @@ struct AppState {
 
 #[get("/")]
 async fn index(req: HttpRequest) -> Result<HttpResponse, Error> {
-        let data = req.app_data::<web::Data<AppState>>().unwrap();
-        let s = data.template
+    let data = req.app_data::<web::Data<AppState>>().unwrap();
+    let s = data
+        .template
         .render("index.html", &Context::new())
         .map_err(|_| error::ErrorInternalServerError("Template error"))?;
 
@@ -21,15 +22,17 @@ async fn main() -> std::io::Result<()> {
     let tera = match Tera::new(templates_glob) {
         Ok(t) => t,
         Err(e) => {
-                println!("Parsing error(s): {}", e);
-                ::std::process::exit(1);
-            }
+            println!("Parsing error(s): {}", e);
+            ::std::process::exit(1);
+        }
     };
     let app_data = web::Data::new(AppState { template: tera });
 
     HttpServer::new(move || {
-            App::new().app_data(web::Data::clone(&app_data)).service(index)
-        })
+        App::new()
+            .app_data(web::Data::clone(&app_data))
+            .service(index)
+    })
     .bind(("127.0.0.1", 18080))?
     .run()
     .await

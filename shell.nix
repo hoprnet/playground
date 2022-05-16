@@ -25,6 +25,7 @@ mkShell {
 
     rustc
     cargo
+    rustfmt
 
     # custom pkg groups
     macosPkgs
