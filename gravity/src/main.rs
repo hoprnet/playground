@@ -1,3 +1,4 @@
+use crate::cluster::Cluster;
 use actix::{Actor, StreamHandler};
 use actix_web::{middleware::Logger, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
@@ -6,15 +7,22 @@ use slog::{error, info};
 use sloggers::terminal::{Destination, TerminalLoggerBuilder};
 use sloggers::types::Severity;
 use sloggers::Build;
+use std::collections::HashMap;
 use tera::{Context, Tera};
 
 #[derive(Debug)]
-pub struct AppConfig {
+pub struct Global {
     pub logger: slog::Logger,
     pub template: Tera,
 }
 
-pub static APPCONFIG: Lazy<AppConfig> = Lazy::new(|| {
+struct Clusters {
+    pub starting: HashMap<str, Cluster>,
+    pub ready: HashMap<str, Cluster>,
+    pub busy: HashMap<str, Cluster>,
+}
+
+pub static GLOBAL: Lazy<Global> = Lazy::new(|| {
     let mut builder = TerminalLoggerBuilder::new();
     builder.level(Severity::Debug);
     builder.destination(Destination::Stderr);
@@ -33,7 +41,7 @@ pub static APPCONFIG: Lazy<AppConfig> = Lazy::new(|| {
         }
     };
 
-    AppConfig {
+    Global {
         logger: logger,
         template: template,
     }
@@ -46,11 +54,11 @@ impl Actor for StatusWebsocket {
 }
 
 async fn index(_req: HttpRequest) -> Result<HttpResponse, Error> {
-    let s = &APPCONFIG
+    let s = &GLOBAL
         .template
         .render("index.html", &Context::new())
         .map_err(|e| {
-            error!(&APPCONFIG.logger, "{}", e);
+            error!(&GLOBAL.logger, "{}", e);
             actix_web::error::ErrorInternalServerError("Rendering error")
         })?;
 
@@ -62,7 +70,7 @@ async fn index(_req: HttpRequest) -> Result<HttpResponse, Error> {
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for StatusWebsocket {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         if msg.is_ok() {
-            info!(&APPCONFIG.logger, "Handling message on status websocket");
+            info!(&GLOBAL.logger, "Handling message on status websocket");
             match msg {
                 Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
                 Ok(ws::Message::Text(text)) => ctx.text(text),
@@ -71,7 +79,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for StatusWebsocket {
             }
         } else {
             info!(
-                &APPCONFIG.logger,
+                &GLOBAL.logger,
                 "Passing through protocol error on status websocket: {}",
                 msg.unwrap_err()
             );
@@ -80,20 +88,20 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for StatusWebsocket {
 }
 
 async fn ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    info!(&APPCONFIG.logger, "Opening status websocket connection");
+    info!(&GLOBAL.logger, "Opening status websocket connection");
     let resp = ws::start(StatusWebsocket {}, &req, stream);
 
     match resp {
         Ok(ref r) => {
             info!(
-                &APPCONFIG.logger,
+                &GLOBAL.logger,
                 "Opened status websocket connection: {}",
                 r.status()
             );
         }
         Err(ref e) => {
             error!(
-                &APPCONFIG.logger,
+                &GLOBAL.logger,
                 "Failed opening status websocket connection: {}", e
             );
         }
@@ -104,7 +112,7 @@ async fn ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Erro
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let logger = &APPCONFIG.logger;
+    let logger = &GLOBAL.logger;
 
     info!(logger, "starting http server");
     let host = "127.0.0.1";

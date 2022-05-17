@@ -27,9 +27,26 @@
   </head>
   <body>
     <h1>HELLO WORLD</h1>
+    <h2>Cluster Size</h2>
+    <div id="cluster-size"></div>
+    <h2>Cluster Nodes Available</h2>
+    <div id="cluster-nodes-available"></div>
   </body>
   <script type="text/javascript">
     let currentWebSocket;
+    let clustersCount;
+    let clustersAvailable;
+
+    const update_cluster_info = (count, available) => {
+          clustersCount = count;
+          clustersAvailable = available;
+
+          const clustersCountDiv = document.getElementById("clusters-count");
+          clustersCountDiv.textContent = clustersCount;
+
+          const clustersAvailableDiv = document.getElementById("clusters-available");
+          clustersAvailableDiv.textContent = clustersAvailable;
+    };
 
     const join = () => {
       window.location.protocol === "http:"
@@ -45,6 +62,9 @@
       ws.addEventListener("message", (event) => {
         const data = JSON.parse(event.data);
         console.log("received websocket message", event.data);
+        if (data.type === "cluster_update") {
+              update_cluster_info(data.clusters_count, data.clusters_available);
+        }
       });
 
       ws.addEventListener("close", (event) => {
