@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <title>HOPRverse</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <!-- CSS Reset -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+    />
+    <!-- Milligram CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css"
+    />
+    <!-- Font -->
+    <link
+      rel="stylesheet"
+      media="screen"
+      href="https://fontlibrary.org//face/source-code-pro"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="/main.css" />
+    <link rel="icon" href="/hopr_icon.svg" />
+  </head>
+  <body>
+    <h1>HELLO WORLD</h1>
+  </body>
+  <script type="text/javascript">
+    let currentWebSocket;
+
+    const join = () => {
+      window.location.protocol === "http:"
+      const proto = location.protocol.startsWith('https') ? 'wss' : 'ws';
+      const wsUri = `${proto}://${location.host}/ws`
+      const ws = new WebSocket(wsUri);
+
+      ws.addEventListener("open", (event) => {
+        console.log("websocket opened");
+        currentWebSocket = ws;
+      });
+
+      ws.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data);
+        console.log("received websocket message", event.data);
+      });
+
+      ws.addEventListener("close", (event) => {
+        console.log(
+          "websocket closed, reconnecting:",
+          event.code,
+          event.reason
+        );
+        join();
+      });
+
+      ws.addEventListener("error", (event) => {
+        console.log("websocket error, reconnecting:", event);
+        join();
+      });
+    };
+
+    window.addEventListener(
+      "load",
+      async () => {
+        join();
+      },
+      false
+    );
+  </script>
+</html>
