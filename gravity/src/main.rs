@@ -1,4 +1,8 @@
-use crate::cluster::Cluster;
+mod cli;
+mod cluster;
+mod manager;
+
+use crate::manager::Manager;
 use actix::{Actor, StreamHandler};
 use actix_web::{middleware::Logger, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
@@ -7,19 +11,12 @@ use slog::{error, info};
 use sloggers::terminal::{Destination, TerminalLoggerBuilder};
 use sloggers::types::Severity;
 use sloggers::Build;
-use std::collections::HashMap;
 use tera::{Context, Tera};
 
 #[derive(Debug)]
 pub struct Global {
     pub logger: slog::Logger,
     pub template: Tera,
-}
-
-struct Clusters {
-    pub starting: HashMap<str, Cluster>,
-    pub ready: HashMap<str, Cluster>,
-    pub busy: HashMap<str, Cluster>,
 }
 
 pub static GLOBAL: Lazy<Global> = Lazy::new(|| {
@@ -113,6 +110,13 @@ async fn ws(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Erro
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let logger = &GLOBAL.logger;
+    let cli = cli::parse();
+
+    let manager = Manager::create(|ctx: &mut actix::Context<Manager>| Manager {
+        cluster_count: cli.cluster_count,
+        simulate: cli.simulate,
+        ..Default::default()
+    });
 
     info!(logger, "starting http server");
     let host = "127.0.0.1";

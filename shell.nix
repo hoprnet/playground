@@ -23,10 +23,9 @@ mkShell {
     kubectl
     minikube
 
-    rustc
-    cargo
-    rustfmt
+    rust-bin.stable.latest.default
     yj
+    entr
 
     # custom pkg groups
     macosPkgs

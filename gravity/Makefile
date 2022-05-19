@@ -4,12 +4,12 @@ all: help
 
 .PHONY: deps
 deps: ## install dependencies
-	cargo install cargo-watch
 	cargo install cargo-expand
 
 .PHONY: watch-build-run
 watch-build-run: ## rebuilds and runs server on each change
-	cargo watch -x fmt -x b -x r
+	ls src/*.rs Cargo.* | \
+		entr -r -s 'cargo fmt && cargo b && cargo r -- --cluster-count 10'
 
 .PHONY: fmt
 fmt: ## format source files
