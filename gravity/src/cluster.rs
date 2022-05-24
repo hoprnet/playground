@@ -45,7 +45,7 @@ impl Actor for Cluster {
 
 impl Handler<GetId> for Cluster {
 
-    type Result = Result<String,()>;
+    type Result = Result<String, ()>;
 
     fn handle(&mut self, _msg: GetId, _ctx: &mut Context<Self>) -> Self::Result {
         self.id.ok_or(Error("id not set".to_string()))
