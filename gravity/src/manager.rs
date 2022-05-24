@@ -33,7 +33,7 @@ impl Default for Manager {
 impl Actor for Manager {
     type Context = Context<Self>;
 
-    fn started(&mut self, ctx: &mut Context<Self>) {
+    fn started(&mut self, _ctx: &mut Context<Self>) {
         info!(
             &GLOBAL.logger,
             "Started manager with cluster size {}", self.cluster_count
@@ -44,7 +44,7 @@ impl Actor for Manager {
         }
     }
 
-    fn stopped(&mut self, ctx: &mut Context<Self>) {
+    fn stopped(&mut self, _ctx: &mut Context<Self>) {
         info!(&GLOBAL.logger, "Stopped manager");
     }
 }

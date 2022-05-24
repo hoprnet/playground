@@ -27,27 +27,31 @@ impl Default for Cluster {
 }
 
 #[derive(Message)]
-#[rtype(result = "<String, std::io::Error>")]
-struct GetId;
+#[rtype(result = "Result<String, ()>")]
+pub struct GetId;
 
 impl Actor for Cluster {
     type Context = Context<Self>;
 
-    fn started(&mut self, ctx: &mut Context<Self>) {
+    fn started(&mut self, _ctx: &mut Context<Self>) {
         info!(&GLOBAL.logger, "Started cluster {:?}", self.id);
         self.status = ClusterStatus::Starting;
     }
 
-    fn stopped(&mut self, ctx: &mut Context<Self>) {
+    fn stopped(&mut self, _ctx: &mut Context<Self>) {
         info!(&GLOBAL.logger, "Stopped cluster {:?}", self.id);
     }
 }
 
 impl Handler<GetId> for Cluster {
-    type Result = Result<String, std::io::Error>;
 
-    fn handle(&mut self, msg: GetId, ctx: &mut Context<Self>) -> Self::Result {
-        // self.id.ok_or(Error("id not set".to_string()))
-        Ok(self.id?)
+    type Result = Result<String,()>;
+
+    fn handle(&mut self, _msg: GetId, _ctx: &mut Context<Self>) -> Self::Result {
+        self.id.ok_or(Error("id not set".to_string()))
+        // match &self.id {
+        //     Some(id) => Ok(id.clone()),
+        //     None => Err(())
+        // }
     }
 }

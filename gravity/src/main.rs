@@ -112,7 +112,7 @@ async fn main() -> std::io::Result<()> {
     let logger = &GLOBAL.logger;
     let cli = cli::parse();
 
-    let manager = Manager::create(|ctx: &mut actix::Context<Manager>| Manager {
+    let manager = Manager::create(|_ctx: &mut actix::Context<Manager>| Manager {
         cluster_count: cli.cluster_count,
         simulate: cli.simulate,
         ..Default::default()
