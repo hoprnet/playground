@@ -38,18 +38,16 @@ impl Actor for Manager {
             &GLOBAL.logger,
             "Started manager with cluster size {}", self.cluster_count
         );
-
+        let addr = ctx.address();
         for i in 1..self.cluster_count {
             let id = create_id(i);
-            let cluster = Cluster::create(|context: &mut actix::Context<Cluster>| Cluster {
+            let cluster = Cluster::create(|ctx: &mut actix::Context<Cluster>| Cluster {
                 id: Some(id),
-                manager: Some(ctx.address()),
+                manager: Some(addr),
                 ..Default::default()
             });
-
-            if let Ok(cluster_id) = cluster.send(crate::cluster::GetId).await {
-                self.new.insert(cluster_id, cluster);
-            }
+            let cluster_id = cluster.send(GetId).await;
+            self.new.insert(cluster_id, cluster);
         }
     }
 

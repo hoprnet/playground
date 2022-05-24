@@ -27,8 +27,8 @@ impl Default for Cluster {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<String, ()>")]
-pub struct GetId;
+#[rtype(result = "<String, std::io::Error>")]
+struct GetId;
 
 impl Actor for Cluster {
     type Context = Context<Self>;
@@ -44,10 +44,9 @@ impl Actor for Cluster {
 }
 
 impl Handler<GetId> for Cluster {
-
-    type Result = Result<String,()>;
+    type Result = Result<String, std::io::Error>;
 
     fn handle(&mut self, msg: GetId, ctx: &mut Context<Self>) -> Self::Result {
-        self.id.ok_or(())
+        Ok(self.id?)
     }
 }
