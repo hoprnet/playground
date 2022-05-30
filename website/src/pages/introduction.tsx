@@ -76,7 +76,7 @@ const Introduction = (props: {
           <div className="titleText" style={{ textAlign: "center" }}>
             WHAT IS THE HOPR PROTOCOL?
           </div>
-          <div className={`container ${styles.video}`}>
+          <div className={`container topGap ${styles.video}`}>
             <iframe
               width="560"
               height="315"
@@ -90,7 +90,7 @@ const Introduction = (props: {
         </div>
       ) : null}
 
-      <div className="container section topGap">
+      <div className="container section topLgGap">
         <div className="titleText" style={{ textAlign: "center" }}>
           WANT TO BECOME PART OF THE HOPR ECOSYSTEM?
         </div>

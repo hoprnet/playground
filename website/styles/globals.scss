@@ -10,7 +10,7 @@ body {
 }
 
 a {
-  color: blue;
+  color: $hopr-highligt;
   text-decoration: none;
 }
 
@@ -41,7 +41,15 @@ a {
 }
 
 .highlight {
-  color: blue;
+  color: $hopr-highligt;
+}
+
+.hovered {
+  border: 1px solid $hopr-hover;
+}
+
+.selected {
+  border: 1px solid $hopr-select;
 }
 
 .titleText {

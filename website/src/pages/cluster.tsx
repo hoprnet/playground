@@ -42,11 +42,10 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
           <div
             key={name}
             onClick={() => {
-              console.log("name", name);
               setSelection(name);
             }}
             className={`${styles.appBox} ${
-              selection === name ? styles.selected : ""
+              selection === name ? "selected" : ""
             }`}
           >
             {name}

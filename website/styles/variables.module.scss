@@ -4,6 +4,9 @@ $tablet-width: 650px;
 
 // colors
 $hopr-yellow: #FFFFA0;
+$hopr-highligt: blue;
+$hopr-select: #414141;
+$hopr-hover: change-color($color: $hopr-select, $alpha: 0.15);
 
 $gap: 40px;
 $lgGap: 60px;

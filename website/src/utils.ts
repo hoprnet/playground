@@ -17,13 +17,13 @@ export const getUrlParams = (
 };
 
 /**
- * Convert seconds to time format like hh:ss
- * @param secs
- * @returns a string like hh:ss
+ * Convert seconds to time format like mm:ss
+ * @param s seconds
+ * @returns a string like mm:ss
  */
-export const secondsToTime = (secs: number): string => {
-  if (!secs) return "00:00";
-  const hours = Math.floor(secs / 3600);
-  const mins = Math.floor((secs - hours * 3600) / 60);
-  return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+export const secondsToTime = (s: number): string => {
+  if (!s) return "00:00";
+  const mins = String(Math.floor((s / 60) % 60)).padStart(2, "0");
+  const secs = String(Math.floor(s % 60)).padStart(2, "0");
+  return `${mins}:${secs}`;
 };

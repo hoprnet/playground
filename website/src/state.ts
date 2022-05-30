@@ -22,7 +22,7 @@ const useAppState = () => {
   const urlParams = !isSSR ? getUrlParams(location) : {};
   // set initial state
   const [state, setState] = useState<State>({
-    page: "playground",
+    page: "introduction",
     clusters: {
       total: 0,
       used: 0,
@@ -31,10 +31,7 @@ const useAppState = () => {
     },
     cluster: {
       secondsRemaining: 0,
-      apps: {
-        HOPRd: ["hello", "world"],
-        mune: ["bye", "world"],
-      },
+      apps: {},
     },
   });
   // initialize websocket
@@ -56,6 +53,7 @@ const useAppState = () => {
       } else if (data.type === "cluster_update") {
         setState((draft) => {
           draft.cluster = data.cluster;
+          draft.cluster.secondsRemaining = data.secondsRemaining;
           return draft;
         });
       }

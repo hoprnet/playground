@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Navbar from "../src/components/navbar";
-import Footer from "../src/components/footer";
+// import Footer from "../src/components/footer";
 import Introduction from "../src/pages/introduction";
 import Cluster from "../src/pages/cluster";
 import useAppState from "../src/state";
@@ -17,7 +17,8 @@ const Index: NextPage = () => {
       ) : (
         <Cluster cluster={state.cluster} />
       )}
-      <Footer />
+      {/* Footer here disabled, uncomment to add */}
+      {/* <Footer /> */}
     </div>
   );
 };
