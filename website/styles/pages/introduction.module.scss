@@ -1,0 +1,48 @@
+@import "../variables.module.scss";
+
+.welcome {
+    align-items: center;
+    text-align: left;
+    margin-bottom: $lgGap;
+
+    @media (min-width: $desktop-width) {
+        flex-direction: row-reverse;
+        margin-bottom: 0px;
+    }
+}
+
+.video {
+    justify-content: center;
+    align-items: center;
+}
+
+.clusters {
+    justify-content: start;
+    text-align: left;
+
+    .textWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+}
+
+.bounties {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column-reverse;
+
+    .textWrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 300px;
+        margin-top: $gap;
+    }
+
+    @media (min-width: $desktop-width) {
+        flex-direction: row;
+        margin-top: 0px;
+    }
+}

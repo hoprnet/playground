@@ -1,0 +1,15 @@
+@import "../variables.module.scss";
+
+.yellowCircle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: $hopr-yellow;
+    min-width: 400px;
+    min-height: 400px;
+    border-radius: 200px;
+    top: -145px;
+    z-index: -1;
+}

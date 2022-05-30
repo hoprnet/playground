@@ -1,0 +1,65 @@
+@import "../variables.module.scss";
+
+.container {
+  padding: 20px 120px;
+  align-items: center;
+  color: white;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 220px;
+  background: linear-gradient(180deg, #0000b4 0.5%, #000050 100%);
+
+  @media (max-width: $desktop-width) {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr;
+    padding: 20px 20px !important;
+ 
+    .iconListWrapper {
+      justify-content: center !important;
+      padding-bottom: 0px !important;
+      /* padding-top: 20px; */
+    }
+    .leftCell {
+      justify-content: center;
+      grid-row: 2;
+    }
+  }
+}
+
+.iconList {
+  filter: invert(1);
+  list-style: none;
+  display: flex;
+  gap: 24px;
+}
+
+.leftCell {
+  display: flex;
+  gap: 36px;
+
+  @media (max-width: $desktop-width) {
+    justify-content: center;
+    grid-row: 2;
+  }
+}
+
+.addressWrapper {
+  padding-bottom: 20px;
+}
+
+.footerText {
+  font-size: 13px;
+  line-height: 16px;
+  letter-spacing: 0.091px;
+}
+
+.iconListWrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 50px;
+
+  @media (max-width: $desktop-width) {
+    justify-content: center !important;
+    padding-bottom: 0px !important;
+  }
+}
