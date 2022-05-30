@@ -1,0 +1,39 @@
+@import "../variables.module.scss";
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  height: 80px;
+  background-color: white;
+
+  @media (min-width: $desktop-width) {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    min-height: 80px;
+  }
+}
+
+.hoprLogo {
+  cursor: pointer;
+  padding: 5px;
+
+  @media (min-width: $desktop-width) {
+    width: fit-content;
+    justify-self: center;
+    align-self: center;
+    margin-bottom: -5px;
+  }
+}
+
+.title {
+  display: flex;
+  cursor: pointer;
+  font-size: 20px;
+  align-items: center;
+
+  @media (min-width: $desktop-width) {
+    font-size: 40px;
+    align-self: center;
+  }
+}

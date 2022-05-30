@@ -1,0 +1,57 @@
+@import "./variables.module.scss";
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap");
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Source Code Pro, sans-serif;
+  color: #414141;
+}
+
+a {
+  color: blue;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.topLgGap {
+  margin-top: $lgGap;
+}
+
+.topGap {
+  margin-top: $gap;
+}
+
+.bottomGap {
+  margin-bottom: $gap;
+}
+
+.section {
+  margin-left: $gap;
+  margin-right: $gap;
+}
+
+.highlight {
+  color: blue;
+}
+
+.titleText {
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 45px;
+}
+
+.mainText {
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 45px;
+}
