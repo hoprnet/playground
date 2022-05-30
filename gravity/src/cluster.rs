@@ -47,6 +47,6 @@ impl Handler<GetId> for Cluster {
     type Result = Result<String, std::io::Error>;
 
     fn handle(&mut self, msg: GetId, ctx: &mut Context<Self>) -> Self::Result {
-        Ok(self.id?)
+        self.id.ok_or(Error("id not set".to_string()))
     }
 }

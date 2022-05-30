@@ -38,21 +38,45 @@ impl Actor for Manager {
             &GLOBAL.logger,
             "Started manager with cluster size {}", self.cluster_count
         );
-        let addr = ctx.address();
         for i in 1..self.cluster_count {
             let id = create_id(i);
-            let cluster = Cluster::create(|ctx: &mut actix::Context<Cluster>| Cluster {
-                id: Some(id),
-                manager: Some(addr),
-                ..Default::default()
-            });
-            let cluster_id = cluster.send(GetId).await;
-            self.new.insert(cluster_id, cluster);
+            self.create_cluster(ctx, id);
         }
     }
 
     fn stopped(&mut self, ctx: &mut Context<Self>) {
         info!(&GLOBAL.logger, "Stopped manager");
+    }
+}
+
+impl Manager {
+    fn create_cluster(&mut self, ctx: &Context<Self>, id: String) {
+        let addr = ctx.address();
+        info!(&GLOBAL.logger, "Create cluster {}", id);
+        let cluster = Cluster::create(|ctx: &mut actix::Context<Cluster>| Cluster {
+            id: Some(id),
+            manager: Some(addr),
+            ..Default::default()
+        });
+        let cluster_id_res = cluster.send(GetId).await;
+        if cluster_id.is_ok() {
+            let cluster_id = cluster_id_res.unwrap();
+            info!(
+                &GLOBAL.logger,
+                "Created cluster {} at address {}",
+                cluster_id,
+                format!("{cluster:?}")
+            );
+            self.new.insert(cluster_id, cluster);
+        } else {
+            error!(
+                &GLOBAL.logger,
+                "Failed to create cluster {}: {}, retrying",
+                id,
+                cluster_id_res.unwrap_err()
+            );
+            self.create_cluster(ctx, id);
+        }
     }
 }
 
