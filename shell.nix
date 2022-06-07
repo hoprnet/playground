@@ -27,6 +27,9 @@ mkShell {
     yj
     entr
 
+    # infrastructure
+    terraform
+
     # custom pkg groups
     macosPkgs
     linuxPkgs
