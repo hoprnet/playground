@@ -7,6 +7,7 @@ local: ## apply terraform configuration to local minikube cluster
 	minikube start
 	cp providers.tf.local providers.tf
 	cp terraform.tf.local terraform.tf
+	terraform init
 	terraform plan || { make reset && exit 1; }
 	terraform apply || { make reset && exit 1; }
 	make reset
