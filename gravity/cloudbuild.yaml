@@ -1,11 +1,11 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: 'gcr.io/kaniko-project/executor:latest'
     args:
-      - 'build'
-      - '.'
-      - '-t'
-      - 'gcr.io/hoprassociation/playground'
+      - --destination=gcr.io/hoprassociation/playground
+      - --cache=true
+      - --cache-ttl=96h
+    timeout: 2400s
 options:
   logStreamingOption: STREAM_ON
-images:
-  - 'gcr.io/hoprassociation/playground'
+  substitutionOption: MUST_MATCH
+  machineType: E2_HIGHCPU_8
