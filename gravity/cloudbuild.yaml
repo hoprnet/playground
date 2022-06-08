@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '.'
+      - '-t'
+      - 'gcr.io/hoprassociation/playground'
+options:
+  logStreamingOption: STREAM_ON
+images:
+  - 'gcr.io/hoprassociation/playground'
