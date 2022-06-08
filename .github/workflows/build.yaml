@@ -2,6 +2,10 @@ name: Build
 
 env: []
 
+on:
+  push:
+    branches: ['**']
+
 jobs:
   build:
     name: Build and public Docker image
