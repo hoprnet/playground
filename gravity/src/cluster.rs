@@ -11,24 +11,24 @@ pub enum ClusterStatus {
 }
 
 pub struct Cluster {
-    pub id: Option<String>,
+    pub id: String,
     pub status: ClusterStatus,
-    pub manager: Option<Addr<Manager>>,
-}
-
-impl Default for Cluster {
-    fn default() -> Cluster {
-        Cluster {
-            id: None,
-            status: ClusterStatus::New,
-            manager: None,
-        }
-    }
+    pub manager: Addr<Manager>,
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<String, ()>")]
+#[rtype(result = "Result<String, String>")]
 pub struct GetId;
+
+impl Cluster {
+    pub fn new(id: String, manager: Addr<Manager>) -> Self {
+        Self {
+            id,
+            manager,
+            status: ClusterStatus::New,
+        }
+    }
+}
 
 impl Actor for Cluster {
     type Context = Context<Self>;
@@ -44,11 +44,10 @@ impl Actor for Cluster {
 }
 
 impl Handler<GetId> for Cluster {
-
-    type Result = Result<String, ()>;
+    type Result = Result<String, String>;
 
     fn handle(&mut self, _msg: GetId, _ctx: &mut Context<Self>) -> Self::Result {
-        self.id.ok_or(Error("id not set".to_string()))
+        Ok(self.id.clone())
         // match &self.id {
         //     Some(id) => Ok(id.clone()),
         //     None => Err(())

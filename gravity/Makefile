@@ -11,6 +11,11 @@ watch-build-run: ## rebuilds and runs server on each change
 	ls src/*.rs Cargo.* | \
 		entr -r -s 'cargo fmt && cargo b && cargo r -- --cluster-count 10'
 
+.PHONY: build
+build: ## builds the binary
+build: fmt
+	cargo b
+
 .PHONY: fmt
 fmt: ## format source files
 	cargo fmt

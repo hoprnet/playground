@@ -1,6 +1,8 @@
 use crate::cluster::Cluster;
+use crate::cluster::GetId;
 use crate::GLOBAL;
 use actix::prelude::*;
+use slog::error;
 use slog::info;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
@@ -33,7 +35,7 @@ impl Default for Manager {
 impl Actor for Manager {
     type Context = Context<Self>;
 
-    fn started(&mut self, _ctx: &mut Context<Self>) {
+    fn started(&mut self, ctx: &mut Context<Self>) {
         info!(
             &GLOBAL.logger,
             "Started manager with cluster size {}", self.cluster_count
@@ -50,32 +52,30 @@ impl Actor for Manager {
 }
 
 impl Manager {
-    fn create_cluster(&mut self, ctx: &Context<Self>, id: String) {
+    async fn create_cluster(&mut self, ctx: &Context<Self>, id: String) {
         let addr = ctx.address();
+        let local_id = id.clone();
         info!(&GLOBAL.logger, "Create cluster {}", id);
-        let cluster = Cluster::create(|ctx: &mut actix::Context<Cluster>| Cluster {
-            id: Some(id),
-            manager: Some(addr),
-            ..Default::default()
-        });
+        let cluster = Cluster::create(|_ctx: &mut actix::Context<Cluster>| Cluster::new(id, addr));
         let cluster_id_res = cluster.send(GetId).await;
-        if cluster_id.is_ok() {
-            let cluster_id = cluster_id_res.unwrap();
-            info!(
-                &GLOBAL.logger,
-                "Created cluster {} at address {}",
-                cluster_id,
-                format!("{cluster:?}")
-            );
-            self.new.insert(cluster_id, cluster);
-        } else {
-            error!(
-                &GLOBAL.logger,
-                "Failed to create cluster {}: {}, retrying",
-                id,
-                cluster_id_res.unwrap_err()
-            );
-            self.create_cluster(ctx, id);
+        match cluster_id_res {
+            Ok(res) => {
+                let cluster_id = res.unwrap();
+                info!(
+                    &GLOBAL.logger,
+                    "Created cluster {} at address {}",
+                    cluster_id,
+                    format!("{cluster:?}")
+                );
+                self.new.insert(cluster_id, cluster);
+            }
+            Err(err) => {
+                error!(
+                    &GLOBAL.logger,
+                    "Failed to create cluster {}: {}, retrying", local_id, err
+                );
+                self.create_cluster(ctx, local_id);
+            }
         }
     }
 }
