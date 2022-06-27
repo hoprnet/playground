@@ -1,10 +1,12 @@
 import type { State } from "../state";
 import { useMemo } from "react";
 import styles from "../../styles/pages/introduction.module.scss";
-import Gradient from "../components/gradient";
 import Button from "../components/button";
-import Playground from "../components/playground";
 import { secondsToTime } from "../utils";
+import Hero from '../future-hopr-lib-components/Hero'
+import EncourageSection from "../future-hopr-lib-components/EncourageSection/index.jsx";
+import playgroundAnimation from '../animation/playground.json'
+import typingBotAnimation from '../animation/typing-bot-animation.json';
 
 const Introduction = (props: {
   clusters: State["clusters"];
@@ -18,17 +20,11 @@ const Introduction = (props: {
   }, [props.clusters.secondsUntilRelease]);
 
   return (
-    <div className="container">
-      <Gradient />
+    <div>
+      <Hero
+        animation={playgroundAnimation}
+      />
 
-      {/* welcome section */}
-      <div className={`container section ${styles.welcome}`}>
-        <Playground />
-        <div className="mainText">
-          Welcome to the HOPR Playground, where you can try out the HOPR
-          protocol on a remotely hosted node network.
-        </div>
-      </div>
 
       {/* clusters section */}
       <div className={`container section bottomGap ${styles.clusters}`}>
@@ -46,15 +42,14 @@ const Introduction = (props: {
               </span>
             </>
           ) : (
-            <>
-              <span>Currently all clusters are in use.</span>
-              <span>
+            <div className={styles.centerParagraph}>
+              <p>Currently all clusters are in use.<br/>
                 Please wait for{" "}
                 <span className="highlight">{timeUntilRelease}</span>. All{" "}
                 <span className="highlight">{props.clusters.total}</span>{" "}
                 clusters will then be allocated to new users.
-              </span>
-            </>
+              </p>
+            </div>
           )}
         </div>
         {hasAvailableCluster ? (
@@ -90,28 +85,11 @@ const Introduction = (props: {
         </div>
       ) : null}
 
-      <div className="container section topLgGap">
-        <div className="titleText" style={{ textAlign: "center" }}>
-          WANT TO BECOME PART OF THE HOPR ECOSYSTEM?
-        </div>
-        <div className={`container ${styles.bounties}`}>
-          <div id="terminalRobotAnimation" style={{ height: "300px" }} />
-          <div className={styles.textWrapper}>
-            <span>
-              Consider joining the{" "}
-              <a
-                href="https://bounties.hoprnet.org"
-                target="_blank"
-                rel="noreferrer"
-                className={styles.linkStyle}
-              >
-                HOPR Bounty Program
-              </a>{" "}
-              and build dApps that change data privacy for good.
-            </span>
-          </div>
-        </div>
-      </div>
+      <EncourageSection
+          title='BE PART OF THE HOPR ECOSYSTEM'
+          text='HOPR is building the transport layer privacy needed to make web3 work. Work with us to build dApps that change data privacy for good.'
+          animationData={typingBotAnimation}
+      />
     </div>
   );
 };
