@@ -15,12 +15,12 @@ const Content = styled.div`
   margin-top: 68px;
 `
 
-const Layout = ({ className = '', children, setShowSetup }) => {
+const Layout: React.FC<{ children?: any }> = (props) => {
     return (
         <SLayout className="Layout">
             <NavBar title="Playground" />
             <Content className="Content">
-                {children}
+                {props.children}
             </Content>
             <Footer />
         </SLayout>

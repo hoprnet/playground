@@ -7,7 +7,7 @@ import Cluster from "../src/pages/cluster";
 import useAppState from "../src/state";
 import styles from "../styles/index.module.scss";
 
-import Layout from '../src/future-hopr-lib-components/Layout/index.jsx'
+import Layout from '../src/future-hopr-lib-components/Layout'
 
 const Index: NextPage = () => {
   const { state, launchCluster } = useAppState();
@@ -22,8 +22,6 @@ const Index: NextPage = () => {
       ) : (
         <Cluster cluster={state.cluster} />
       )}
-      {/* Footer here disabled, uncomment to add */}
-      {/* <Footer /> */}
     </Layout>
   );
 };
