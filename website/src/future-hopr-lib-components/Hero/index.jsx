@@ -45,7 +45,6 @@ function Hero(props) {
     const animationLoaded = useRef(false);
 
     useEffect(() => {
-        // check to prevent double animation load on page remount
         if (!animationLoaded.current) {
             lottie.loadAnimation({
                 container: document.querySelector(`#hero-animation`),

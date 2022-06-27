@@ -4,7 +4,9 @@ import styles from "../../styles/pages/introduction.module.scss";
 import Button from "../components/button";
 import { secondsToTime } from "../utils";
 import Hero from '../future-hopr-lib-components/Hero'
+import EncourageSection from "../future-hopr-lib-components/EncourageSection/index.jsx";
 import playgroundAnimation from '../animation/playground.json'
+import typingBotAnimation from '../animation/typing-bot-animation.json';
 
 const Introduction = (props: {
   clusters: State["clusters"];
@@ -83,28 +85,11 @@ const Introduction = (props: {
         </div>
       ) : null}
 
-      <div className="container section topLgGap">
-        <div className="titleText" style={{ textAlign: "center" }}>
-          WANT TO BECOME PART OF THE HOPR ECOSYSTEM?
-        </div>
-        <div className={`container ${styles.bounties}`}>
-          <div id="terminalRobotAnimation" style={{ height: "300px" }} />
-          <div className={styles.textWrapper}>
-            <span>
-              Consider joining the{" "}
-              <a
-                href="https://bounties.hoprnet.org"
-                target="_blank"
-                rel="noreferrer"
-                className={styles.linkStyle}
-              >
-                HOPR Bounty Program
-              </a>{" "}
-              and build dApps that change data privacy for good.
-            </span>
-          </div>
-        </div>
-      </div>
+      <EncourageSection
+          title='BE PART OF THE HOPR ECOSYSTEM'
+          text='HOPR is building the transport layer privacy needed to make web3 work. Work with us to build dApps that change data privacy for good.'
+          animationData={typingBotAnimation}
+      />
     </div>
   );
 };
