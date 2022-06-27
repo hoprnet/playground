@@ -1,10 +1,10 @@
 import type { State } from "../state";
 import { useMemo } from "react";
 import styles from "../../styles/pages/introduction.module.scss";
-import Gradient from "../components/gradient";
 import Button from "../components/button";
-import Playground from "../components/playground";
 import { secondsToTime } from "../utils";
+import Hero from '../future-hopr-lib-components/Hero'
+import playgroundAnimation from '../animation/playground.json'
 
 const Introduction = (props: {
   clusters: State["clusters"];
@@ -18,17 +18,11 @@ const Introduction = (props: {
   }, [props.clusters.secondsUntilRelease]);
 
   return (
-    <div className="container">
-      <Gradient />
+    <div>
+      <Hero
+        animation={playgroundAnimation}
+      />
 
-      {/* welcome section */}
-      <div className={`container section ${styles.welcome}`}>
-        <Playground />
-        <div className="mainText">
-          Welcome to the HOPR Playground, where you can try out the HOPR
-          protocol on a remotely hosted node network.
-        </div>
-      </div>
 
       {/* clusters section */}
       <div className={`container section bottomGap ${styles.clusters}`}>
@@ -46,15 +40,14 @@ const Introduction = (props: {
               </span>
             </>
           ) : (
-            <>
-              <span>Currently all clusters are in use.</span>
-              <span>
+            <div className={styles.centerParagraph}>
+              <p>Currently all clusters are in use.<br/>
                 Please wait for{" "}
                 <span className="highlight">{timeUntilRelease}</span>. All{" "}
                 <span className="highlight">{props.clusters.total}</span>{" "}
                 clusters will then be allocated to new users.
-              </span>
-            </>
+              </p>
+            </div>
           )}
         </div>
         {hasAvailableCluster ? (

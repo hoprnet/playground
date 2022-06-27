@@ -14,6 +14,10 @@
 .video {
     justify-content: center;
     align-items: center;
+    iframe {
+        max-width: 560px;
+        width: 100%;
+    }
 }
 
 .clusters {
@@ -26,6 +30,13 @@
         gap: 10px;
         margin-bottom: 20px;
     }
+}
+
+.centerParagraph {
+    max-width: 370px;
+    margin: auto;
+    text-align: center;
+    line-height: 1.5;
 }
 
 .bounties {
