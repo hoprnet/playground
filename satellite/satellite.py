@@ -4,6 +4,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread, current_thread, Lock
 from datetime import timedelta
 
+import os
 import json
 import time
 import signal
@@ -35,6 +36,23 @@ parser.add_argument(
     "pluto_container_base_port",
     type=int,
     help="the base port used for published container ports",
+)
+parser.add_argument(
+    "haproxy_conf",
+    type=str,
+    help="destination filename for the generated haproxy sub-configuration",
+)
+parser.add_argument(
+    "--target-domain",
+    type=str,
+    default="localhost",
+    help="domain used when constructing the reverse proxy configuration for all clusters",
+)
+parser.add_argument(
+    "--target-protocol",
+    type=str,
+    default="http",
+    help="protocol used for constructing the reverse proxy cluster urls",
 )
 parser.add_argument(
     "--host",
@@ -142,6 +160,8 @@ class Container:
         self.state = "created"
         # the container requires 10 ports (2 per hoprd node)
         self.base_port = base_port
+        self.api_ports = [base_port + i for i in range(5)]
+        self.admin_ports = [base_port + i for i in range(5, 10)]
         # host port to container port
         self.port_mappings = [
             # API ports
@@ -151,6 +171,16 @@ class Container:
             "-p",
             "{}-{}:19091-19095".format(base_port + 5, base_port + 9),
         ]
+        nodes = []
+        for i in range(5):
+            admin_port = self.admin_ports[i]
+            api_port = self.api_ports[i]
+            api_url = (
+                f"{args.target_protocol}://{self.name}.{args.target_domain}:{api_port}"
+            )
+            admin_url = f"{args.target_protocol}://{self.name}.{args.target_domain}:{admin_port}"
+            nodes.append({"api_url": api_url, "admin_url": admin_url})
+        self.nodes = nodes
 
     def activate(self):
         self.started_at = int(round(time.time()))
@@ -225,7 +255,59 @@ class State:
             c = Container(name, base_port)
             if c.create():
                 self.containers.append(c)
+        # update haproxy configuration
+        self.write_haproxy_configuration()
         print("sync containers finished")
+
+    def write_haproxy_configuration(self):
+        conf_frontends = []
+        conf_backends = []
+
+        for c in self.active_containers():
+            # need to use underscores in haproxy var names
+            name_acl = c.name.replace("-", "_")
+            backends = ""
+            frontends = f"""
+    acl url_{name_acl} hdr(host) -i {c.name}.{args.target_domain}
+            """
+
+            for port in c.admin_ports:
+                frontends += f"""
+    acl port_{name_acl}_admin_{port} hdr(port) -i {port}
+    use_backend satellite_cluster_{name_acl}_admin if url_{name_acl} port_{name_acl}_admin_{port}
+                """
+
+                backends += f"""
+backend satellite_cluster_{name_acl}_admin_{port}
+    server server1 127.0.0.1:{port}
+                """
+
+            for port in c.api_ports:
+                frontends += f"""
+    acl port_{name_acl}_api_{port} hdr(port) -i {port}
+    use_backend satellite_cluster_{name_acl}_api if url_{name_acl} port_{name_acl}_api_{port}
+                """
+
+                backends += f"""
+backend satellite_cluster_{name_acl}_api_{port}
+    server server1 127.0.0.1:{port}
+                """
+
+            conf_frontends.append(frontends)
+            conf_backends.append(backends)
+
+        conf = f"""
+frontend satellite_clusters
+    bind :::80 v4v6
+    bind :::443 v4v6 alpn h2,http/1.1 ssl crt /etc/haproxy/certs/{args.target_domain}/fullchain_haproxy.pem
+    redirect scheme https unless {{ ssl_fc }}
+    {os.linesep.join(conf_frontends)}
+
+{f"{os.linesep}{os.linesep}".join(conf_backends)}
+        """
+
+        with open(args.haproxy_conf, "w", encoding="utf-8") as f:
+            f.write(conf)
 
     def old_containers(self):
         now = int(round(time.time()))
@@ -237,6 +319,13 @@ class State:
     def free_containers(self):
         now = int(round(time.time()))
         containers = [c for c in self.containers if c.state == "created"]
+        return containers
+
+    def active_containers(self):
+        now = int(round(time.time()))
+        containers = [
+            c for c in self.containers if c.state == "activated" and c.finished_at > now
+        ]
         return containers
 
     def activate_container(self):
@@ -317,6 +406,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             msg = {
                 "cluster_name": container.name,
                 "cluster_valid_until": container.finished_at,
+                "cluster_nodes": container.nodes,
             }
         else:
             msg = {"error": "no cluster available"}
@@ -324,6 +414,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 mutex = Lock()
+
 
 def periodic_sync_containers():
     if mutex.acquire(1):

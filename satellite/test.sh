@@ -74,9 +74,10 @@ while [ "${free_clusters_count}" != 0 ]; do
 
   (( activate_counter=activate_counter+1 ))
 
-  declare cluster_name
-  cluster_name="$(curl_call "/api/clusters/activate" "POST" | jq '.cluster_name')"
-  [ -n "${cluster_name}" ]
+  declare cluster_name activate_result
+  activate_result="$(curl_call "/api/clusters/activate" "POST")"
+  [ -n "$(echo "${activate_result}" | jq '.cluster_name')" ]
+  [ "$(echo "${activate_result}" | jq '.cluster_nodes | length')" = "5" ]
 
   total_clusters_count="$(curl_call "/api/clusters" "GET" | jq '.total_clusters_count')"
   free_clusters_count="$(curl_call "/api/clusters" "GET" | jq '.free_clusters_count')"

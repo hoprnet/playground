@@ -33,6 +33,7 @@ mkShell {
 
     python310
     python310Packages.black
+    haproxy
 
     # custom pkg groups
     macosPkgs
