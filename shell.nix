@@ -29,6 +29,10 @@ mkShell {
 
     # infrastructure
     terraform
+    kubernetes-helm
+
+    python310
+    python310Packages.black
 
     # custom pkg groups
     macosPkgs
