@@ -1,3 +1,4 @@
 /.direnv/
 /gravity/target/
 /satellite/haproxy-satellite.conf
+/ansible/.ansible-vault-pw
