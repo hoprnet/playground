@@ -4,8 +4,7 @@ all: help
 
 .PHONY: fmt
 fmt: ## format yaml files
-	find . -name "*.yaml" | xargs -I {} -n 1 bash -c "cat {} | yj -yy > {}.new ; mv {}.new {};"
-	find . -name "*.yml" | xargs -I {} -n 1 bash -c "cat {} | yj -yy > {}.new ; mv {}.new {};"
+	ansible-lint
 
 .PHONY: init
 init: ## set up local environment
@@ -32,10 +31,8 @@ endif
 	@echo "This attempt may fail eventually but configures enough for the server to be initialized."
 	@echo "Waiting 10 seconds..."
 	sleep 10
-	env \
-		ANSIBLE_STRATEGY=linear \
-			ansible-playbook main.yml -i inventories/all/hosts.yml -l $(servers) -u root \
-				-e ansible_ssh_user=root -e ansible_ssh_port=22 -vvvv
+	ansible-playbook main.yml -i inventories/all/hosts.yml -l $(servers) -u root \
+		-e ansible_ssh_user=root -e ansible_ssh_port=22
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

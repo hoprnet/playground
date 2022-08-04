@@ -1,7 +1,6 @@
 ---
-
 - name: restart networking
-  service:
+  ansible.builtin.service:
     name: "{{ item }}"
     state: restarted
   with_items:

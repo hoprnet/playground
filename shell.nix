@@ -38,7 +38,8 @@ mkShell {
     python310Packages.ruamel_yaml
     python310Packages.simplejson
     python310Packages.jmespath
-    ansible_2_12 # v2.12.x
+    ansible_2_13
+    ansible-lint
     haproxy
 
     # custom pkg groups
