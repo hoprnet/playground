@@ -262,6 +262,7 @@ class State:
     def write_haproxy_configuration(self):
         conf_frontends = []
         conf_backends = []
+        bind_ports = []
 
         for c in self.active_containers():
             # need to use underscores in haproxy var names
@@ -296,10 +297,22 @@ backend satellite_cluster_{name_acl}_api_{port}
             conf_frontends.append(frontends)
             conf_backends.append(backends)
 
+            bind_ports += [f":::{p}" for p in [*c.admin_ports, *c.api_ports]]
+
         conf = f"""
 frontend satellite_clusters
-    bind :::80 v4v6
-    bind :::443 v4v6 alpn h2,http/1.1 ssl crt /etc/haproxy/certs/{args.target_domain}/fullchain_haproxy.pem
+        """
+
+        if args.target_protocol == "https":
+            conf += f"""
+    bind {",".join(bind_ports)} v4v6 alpn h2,http/1.1 ssl crt /etc/haproxy/certs/{args.target_domain}/fullchain_haproxy.pem
+            """
+        else:
+            conf += f"""
+    bind {",".join(bind_ports)} v4v6 h2,http/1.1
+            """
+
+        conf += f"""
     redirect scheme https unless {{ ssl_fc }}
     {os.linesep.join(conf_frontends)}
 
