@@ -1,0 +1,34 @@
+---
+network_dns_servers:
+  - 9.9.9.9 # Quad9
+  - 149.112.112.112 # Quad9
+  - 2620:fe::fe # Quad9
+  - 2620:fe::9 # Quad9
+  - 84.200.69.80 # DNSWatch
+  - 84.200.70.40 # DNSWatch
+  - 2001:1608:10:25::1c04:b12f # DNSWatch
+  - 2001:1608:10:25::9249:d69b # DNSWatch
+  - 208.67.222.123 # OpenDNS
+  - 208.67.220.123 # OpenDNS
+packages_standard:
+  - bash
+  - bc
+  - curl
+  - git
+  - htop
+  - liblz4-tool
+  - lsof
+  - mosh
+  - nmap
+  - policykit-1
+  - python3-jmespath
+  - python3-passlib
+  - python3-pexpect
+  - python3-pip
+  - python3-virtualenv
+  - rsync
+  - sudo
+  - tmux
+  - vim
+ssh_users:
+  - minion

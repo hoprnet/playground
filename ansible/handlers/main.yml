@@ -1,0 +1,9 @@
+---
+
+- name: restart networking
+  service:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - networking
+    - systemd-networkd

@@ -1,0 +1,3 @@
+[submodule "ansible/support/mitogen"]
+	path = ansible/support/mitogen
+	url = https://github.com/mitogen-hq/mitogen.git
