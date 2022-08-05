@@ -4,7 +4,7 @@ import lottie from "lottie-web";
 
 const StyledDock = styled.ul`
   width: 100%;
-  height: 60px;
+  height: 74px;
   border-radius: 16px;
   display: flex;
   justify-content: center;
@@ -14,7 +14,7 @@ const StyledDock = styled.ul`
   //transform: translateX(-50%);
 
   .dock-container {
-    padding: 3px;
+    padding: 6px;
     width: auto;
     height: 100%;
     display: flex;
@@ -48,8 +48,8 @@ const StyledDock = styled.ul`
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 50px;
-      height: 50px;
+      width: 72px;
+      height: 72px;
       vertical-align: bottom;
       transition: 0.2s;
       transform-origin: 50% 100%;
@@ -59,7 +59,7 @@ const StyledDock = styled.ul`
 
       .name {
         position: absolute;
-        top: -45px;
+        top: -55px;
         background: rgba(0, 0, 0, 0.5);
         color: rgba(255, 255, 255, 0.9);
         height: 10px;
