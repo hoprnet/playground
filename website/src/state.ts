@@ -23,6 +23,7 @@ const useAppState = () => {
   // set initial state
   const [state, setState] = useState<State>({
     page: "introduction",
+//    page: "playground",
     clusters: {
       total: 0,
       used: 0,
@@ -31,7 +32,11 @@ const useAppState = () => {
     },
     cluster: {
       secondsRemaining: 0,
-      apps: {},
+      apps: {
+        // "hop rd": ["https://derp.hoprnet.org/node1?apiEndpoint=<node-id>", "https://derp.hoprnet.org/node2?apiEndpoint=<node-id>"],
+        // "my.chat": ["x2", "y3"],
+        // "my.chat-v2": ["x4", "y5"]
+      },
     },
   });
   // initialize websocket

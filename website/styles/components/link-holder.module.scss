@@ -4,6 +4,9 @@
     display: flex;
     align-items: center;
     gap: 40px;
+    div {
+      flex-shrink: 0;
+    }
 }
 
 .linkBox {
@@ -11,12 +14,18 @@
     text-align: left;
     align-items: center;
     justify-content: space-between;
-    width: 282px;
+    width: 100%;
+    max-width: 544px;
     height: 33px;
     box-shadow: 0px 2px 15px -6px rgba(0, 0, 0, 0.5);
     padding-left: 5px;
     border-top-right-radius: 15%;
     border-bottom-right-radius: 15%;
+    span {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
 }
 
 .copyIconContainer {
