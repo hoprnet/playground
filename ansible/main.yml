@@ -2,6 +2,7 @@
 - name: Apply basic configuration
   hosts: all
   tasks:
+
     - name: Set empty ifupdown configuration
       template:
         src: network_interfaces.j2
@@ -103,3 +104,31 @@
         dest: /etc/sudoers
         validate: visudo -cf %s
       loop: "{{ vault_users|d([]) }}"
+    - name: Configure sshd
+      template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+      notify: reload sshd
+    - name: Install HAProxy
+      apt:
+        name: haproxy
+    - name: Configure HAProxy (main config)
+      template:
+        src: haproxy.conf.j2
+        dest: /etc/haproxy/haproxy.conf
+    - name: Configure HAProxy (main config)
+      template:
+        src: haproxy.conf.j2
+        dest: /etc/haproxy/haproxy.conf
+    - name: Ensure HAProxy extra config is available
+      command: touch /etc/haproxy/haproxy.extra.conf
+    - name: Configure HAProxy service
+      template:
+        src: haproxy.service.j2
+        dest: /etc/systemd/system/haproxy.service
+    - name: Enable HAProxy service
+      systemd:
+        name: haproxy
+        daemon_reload: true
+        enabled: true
+        state: restarted

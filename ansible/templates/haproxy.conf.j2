@@ -1,0 +1,62 @@
+
+global
+  log /dev/log  local0
+  log /dev/log  local1 notice
+  stats socket /run/haproxy/stats level admin
+  user haproxy
+  group haproxy
+  daemon
+
+defaults
+  log global
+  mode http
+  option httplog
+  option dontlognull
+  option redispatch
+  retries 3
+  timeout client 30s
+  timeout server 30s
+  timeout connect 4s
+  timeout http-request 10s
+  timeout http-keep-alive 2s
+  timeout queue 5s
+  timeout tunnel 2m
+  timeout client-fin 1s
+  timeout server-fin 1s
+
+frontend stats
+  bind ::1:8404
+	bind 127.0.0.1:8404
+	option http-use-htx
+	http-request use-service prometheus-exporter if { path /metrics }
+	stats enable
+	stats uri /stats
+	stats refresh 10s
+
+frontend satellite-http
+	bind ::1:80 v4v6
+	mode http
+	acl url_satellite hdr(host) -i {{ satellite_domain }}
+	acl is_certbot path_beg /.well-known/acme-challenge/
+	redirect scheme https if url_satellite !{ ssl_fc } !is_certbot
+	use_backend backend-certbot if is_certbot url_satellite
+
+frontend https
+	bind :::443 v4v6 alpn h2,http/1.1 ssl crt /etc/haproxy/certs/{{ satellite_domain }}/fullchain_haproxy.pem
+	mode http
+	acl url_satellite hdr(host) -i {{ satellite_domain }}
+	use_backend satellite if url_satellite
+
+backend private_monitoring
+	stats enable
+	stats uri /admin?stats
+	stats refresh 5s
+
+backend backend-certbot
+	mode http
+	server certbot 127.0.0.1:8080
+
+backend satellite
+  mode http
+	http-request add-header X-Forwarded-Proto https if { ssl_fc }
+	server satellite 127.0.0.1:8998

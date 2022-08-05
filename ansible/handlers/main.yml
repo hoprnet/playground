@@ -6,3 +6,7 @@
   with_items:
     - networking
     - systemd-networkd
+- name: reload sshd
+  ansible.builtin.service:
+    name: sshd
+    state: reloaded

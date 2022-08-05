@@ -34,5 +34,9 @@ endif
 	ansible-playbook main.yml -i inventories/all/hosts.yml -l $(servers) -u root \
 		-e ansible_ssh_user=root -e ansible_ssh_port=22
 
+.PHONY: reset-ansible-tmp
+reset-ansible-tmp: ## remove ansible tmp folder on servers
+	ansible all -i inventories/all/hosts.yml -m raw -a "rm -rf /tmp/.ansible" -b -K
+
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
