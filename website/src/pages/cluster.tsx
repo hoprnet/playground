@@ -6,6 +6,9 @@ import Playground from "../components/playground";
 import LinkHolder from "../components/link-holder";
 import { secondsToTime } from "../utils";
 
+import Section from "../future-hopr-lib-components/Section"
+import Dock from "../future-hopr-lib-components/Dock"
+
 const Cluster = (props: { cluster: State["cluster"] }) => {
   const [selection, setSelection] = useState<string>();
   // time remaining until release - computed via secondsRemaining
@@ -19,9 +22,9 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
   console.log(links);
 
   return (
-    <div className="container">
-      <Gradient />
-
+    <Section
+        gradient
+    >
       {/* welcome section */}
       <div className={`container section ${styles.welcome}`}>
         <Playground />
@@ -37,21 +40,25 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
       </div>
 
       {/* show apps */}
-      <div className={`container section ${styles.apps}`}>
-        {apps.map(([name]) => (
-          <div
-            key={name}
-            onClick={() => {
-              setSelection(name);
-            }}
-            className={`${styles.appBox} ${
-              selection === name ? "selected" : ""
-            }`}
-          >
-            {name}
-          </div>
-        ))}
-      </div>
+      <Dock
+        apps={apps}
+        iconClicked={(index: number) => { setSelection(apps[index][0]) }}
+      />
+      {/*<div className={`container section ${styles.apps}`}>*/}
+      {/*  {apps.map(([name]) => (*/}
+      {/*    <div*/}
+      {/*      key={name}*/}
+      {/*      onClick={() => {*/}
+      {/*        setSelection(name);*/}
+      {/*      }}*/}
+      {/*      className={`${styles.appBox} ${*/}
+      {/*        selection === name ? "selected" : ""*/}
+      {/*      }`}*/}
+      {/*    >*/}
+      {/*      {name}*/}
+      {/*    </div>*/}
+      {/*  ))}*/}
+      {/*</div>*/}
 
       <div className={`container section topGap ${styles.linksContainer}`}>
         <div>
@@ -72,7 +79,7 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
           ))}
         </div>
       </div>
-    </div>
+    </Section>
   );
 };
 
