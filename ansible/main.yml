@@ -1,8 +1,7 @@
 ---
-- name: Apply basic configuration
+- name: Configure apt, users, ssh
   hosts: all
   tasks:
-
     - name: Set empty ifupdown configuration
       template:
         src: network_interfaces.j2
@@ -109,13 +108,16 @@
         src: sshd_config.j2
         dest: /etc/ssh/sshd_config
       notify: reload sshd
-    - name: Install HAProxy
+- name: Configure HAProxy, Nginx, certbot
+  hosts: all
+  tasks:
+    - name: Install HAProxy, Nginx, certbot
       apt:
-        name: haproxy
-    - name: Configure HAProxy (main config)
-      template:
-        src: haproxy.conf.j2
-        dest: /etc/haproxy/haproxy.conf
+        name: '{{ item }}'
+      loop:
+        - lego
+        - haproxy
+        - nginx
     - name: Configure HAProxy (main config)
       template:
         src: haproxy.conf.j2
@@ -126,9 +128,14 @@
       template:
         src: haproxy.service.j2
         dest: /etc/systemd/system/haproxy.service
-    - name: Enable HAProxy service
+    - name: Enable services
       systemd:
-        name: haproxy
+        name: '{{ item }}'
         daemon_reload: true
         enabled: true
         state: restarted
+      loop:
+        - lego
+        - haproxy
+        - nginx
+

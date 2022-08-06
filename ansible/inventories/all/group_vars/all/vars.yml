@@ -30,5 +30,5 @@ packages_standard:
   - sudo
   - tmux
   - vim
-ssh_users:
-  - minion
+satellite_domain: playground-alpha.hoprtech.net
+satellite_clusters_domain: playground.hoprnet.org
