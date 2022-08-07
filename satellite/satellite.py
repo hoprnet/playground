@@ -431,25 +431,6 @@ def signal_handler(signum, frame):
     raise ProgramKilled
 
 
-class Job(threading.Thread):
-    def __init__(self, interval, execute, *args, **kwargs):
-        threading.Thread.__init__(self)
-        self.daemon = False
-        self.stopped = threading.Event()
-        self.interval = interval
-        self.execute = execute
-        self.args = args
-        self.kwargs = kwargs
-
-    def stop(self):
-        self.stopped.set()
-        self.join()
-
-    def run(self):
-        while not self.stopped.wait(self.interval.total_seconds()):
-            self.execute(*self.args, **self.kwargs)
-
-
 def serve_forever(httpd):
     with httpd:
         print("server listening on {}:{}".format(args.host, args.port))
@@ -470,22 +451,20 @@ def run():
 
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
-    job = Job(
-        interval=timedelta(seconds=args.sync_wait_time),
-        execute=periodic_sync_containers,
-    )
-    job.start()
 
+    last_sync = 0
     while True:
         try:
+            now = int(round(time.time()))
+            if now > (last_sync + args.sync_wait_time):
+                periodic_sync_containers()
+                last_sync = int(round(time.time()))
             time.sleep(1)
         except ProgramKilled:
             print("shutting down")
             httpd.shutdown()
             httpd_thread.join()
             print("server shut down")
-            job.stop()
-            print("sync process shut down")
             state.cleanup()
             print("state cleaned up")
             break
