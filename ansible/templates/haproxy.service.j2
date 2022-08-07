@@ -8,7 +8,7 @@ Wants=network-online.target
 [Service]
 EnvironmentFile=-/etc/default/haproxy
 EnvironmentFile=-/etc/sysconfig/haproxy
-Environment="CONFIG=/etc/haproxy/haproxy.conf" EXTRACONFIG=/etc/haproxy/haproxy.extra.conf" "PIDFILE=/run/haproxy.pid" EXTRAOPTS=-S /run/haproxy-master.sock"
+Environment="CONFIG=/etc/haproxy/haproxy.conf" "EXTRACONFIG=/etc/haproxy/haproxy.extra.conf" "PIDFILE=/run/haproxy.pid" "EXTRAOPTS=-S /run/haproxy-master.sock"
 ExecStartPre=/usr/sbin/haproxy -f $CONFIG -f $EXTRACONFIG -c -q $EXTRAOPTS
 ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG -f $EXTRACONFIG -p $PIDFILE $EXTRAOPTS
 ExecReload=/usr/sbin/haproxy -f $CONFIG -f $EXTRACONFIG -c -q $EXTRAOPTS

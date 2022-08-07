@@ -33,11 +33,12 @@ mkShell {
     # infrastructure
     terraform
     kubernetes-helm
-    python310
-    python310Packages.black
-    python310Packages.ruamel_yaml
-    python310Packages.simplejson
-    python310Packages.jmespath
+    # using python 3.9 because its also the default on Debian 11
+    python39
+    python39Packages.black
+    python39Packages.ruamel_yaml
+    python39Packages.simplejson
+    python39Packages.jmespath
     ansible_2_13
     ansible-lint
     haproxy

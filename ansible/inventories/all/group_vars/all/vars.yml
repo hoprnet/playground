@@ -18,6 +18,9 @@ packages_standard:
   - htop
   - liblz4-tool
   - lsof
+  - ca-certificates
+  - gnupg
+  - lsb-release
   - mosh
   - nmap
   - policykit-1
@@ -32,3 +35,8 @@ packages_standard:
   - vim
 satellite_domain: playground-alpha.hoprtech.net
 satellite_clusters_domain: playground.hoprnet.org
+pluto_image: gcr.io/hoprassociation/hopr-pluto:master-goerli
+pluto_container_count: 40
+pluto_container_max_lifetime: 1200
+pluto_container_base_port: 19000
+haproxy_extra_conf: /etc/haproxy/haproxy.extra.conf

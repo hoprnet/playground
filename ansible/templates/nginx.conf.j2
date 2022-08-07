@@ -1,15 +1,15 @@
-pid /run/nginx/nginx.pid;
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
 error_log stderr;
-daemon off;
 
 events {
+  worker_connections 768;
 }
 
 http {
-  # The mime type definitions included with nginx are very incomplete, so
-  # we use a list of mime types from the mailcap package, which is also
-  # used by most other Linux distributions by default.
-  include /etc/nginx/mime.full.types;
+  include /etc/nginx/mime.types;
   default_type application/octet-stream;
   # optimisation
   sendfile on;
@@ -55,7 +55,7 @@ http {
 
   server {
     listen 127.0.0.1:8080;
-    server_name {{ satellite_domain }}
+    server_name {{ satellite_domain }};
     location /.well-known/acme-challenge {
       root /var/lib/acme/acme-challenges;
     }

@@ -1,3 +1,6 @@
+# TODO: install docker, see https://docs.docker.com/engine/install/debian/
+# TODO: install cert creation
+# TODO: add cert renewal script and cron job
 ---
 - name: Configure apt, users, ssh
   hosts: all
@@ -108,26 +111,46 @@
         src: sshd_config.j2
         dest: /etc/ssh/sshd_config
       notify: reload sshd
-- name: Configure HAProxy, Nginx, certbot
+- name: Configure HAProxy, Nginx, Satellite
   hosts: all
   tasks:
-    - name: Install HAProxy, Nginx, certbot
+    - name: Install HAProxy, Nginx
       apt:
         name: '{{ item }}'
       loop:
-        - lego
         - haproxy
         - nginx
     - name: Configure HAProxy (main config)
       template:
         src: haproxy.conf.j2
         dest: /etc/haproxy/haproxy.conf
-    - name: Ensure HAProxy extra config is available
-      command: touch /etc/haproxy/haproxy.extra.conf
+    - name: Configure HAProxy (extra config)
+      template:
+        src: haproxy.extra.conf.j2
+        dest: '{{ haproxy_extra_conf }}'
     - name: Configure HAProxy service
       template:
         src: haproxy.service.j2
         dest: /etc/systemd/system/haproxy.service
+    - name: Configure Nginx
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+    - name: Create satellite directory
+      file:
+        name: /var/lib/satellite
+        state: directory
+    - name: Upload satellite
+      copy:
+        src: ../satellite/satellite.py
+        dest: /var/lib/satellite/satellite.py
+        owner: root
+        group: sudo
+        mode: 0770
+    - name: Configure satellite service
+      template:
+        src: satellite.service.j2
+        dest: /etc/systemd/system/satellite.service
     - name: Enable services
       systemd:
         name: '{{ item }}'
@@ -135,7 +158,6 @@
         enabled: true
         state: restarted
       loop:
-        - lego
         - haproxy
         - nginx
-
+        - satellite

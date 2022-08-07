@@ -72,7 +72,11 @@ parser.add_argument(
     default=10,
     help="time (in seconds) between container sync operations",
 )
-
+parser.add_argument(
+    "--post-haproxy-config-cmd",
+    type=str,
+    help="command which should be executed after the haproxy configuration was written",
+)
 args = parser.parse_args()
 
 # the following lists of data are used for container name generation
@@ -192,6 +196,8 @@ class Container:
         cmd = [
             "docker",
             "run",
+            "--pull",
+            "always",
             "-d",
             "-it",
             "--rm",
@@ -321,6 +327,15 @@ frontend satellite_clusters
 
         with open(args.haproxy_conf, "w", encoding="utf-8") as f:
             f.write(conf)
+            if args.post_haproxy_config_cmd:
+                subprocess
+                result = subprocess.run(args.post_haproxy_config_cmd, shell=True)
+                if result.returncode > 0:
+                    print(
+                        "execution of post_haproxy_config_cmd failed with exit code {}: {}".format(
+                            result.returncode, result.stderr
+                        )
+                    )
 
     def old_containers(self):
         now = int(round(time.time()))
