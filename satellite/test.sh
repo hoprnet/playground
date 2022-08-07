@@ -25,7 +25,8 @@ msg() {
 
 # work
 
-declare dev_port="32132"
+declare dev_port="8998"
+declare haproxy_port="8997"
 declare clusters_max_count="3"
 
 function cleanup {
@@ -37,6 +38,8 @@ function cleanup {
 
   log "shut down satellite if still running"
   lsof -i ":${dev_port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
+  log "shut down haproxy if still running"
+  lsof -i ":${haproxy_port}" -s TCP:LISTEN -t | xargs -I {} -n 1 kill {}
 
   exit $EXIT_CODE
 }
@@ -48,9 +51,16 @@ function curl_call() {
   declare method="${2}"
 
   curl -X "${method}" -s \
+    -H "Host: localhost" \
     -H "Content-Type: application/json" \
-    "http://127.0.0.1:${dev_port}${path}"
+    "http://127.0.0.1:${haproxy_port}${path}"
 }
+
+log "check if haproxy is running on port ${haproxy_port}"
+if ! nc -z -w 1 127.0.0.1 ${haproxy_port}; then
+  log "start haproxy"
+  make start-haproxy &
+fi
 
 log "check if satellite is running on port ${dev_port}"
 if ! nc -z -w 1 127.0.0.1 ${dev_port}; then

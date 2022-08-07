@@ -40,7 +40,8 @@ frontend stats
 	stats refresh 10s
 
 frontend satellite-http
-	bind ::1:80 v4v6
+	bind 127.0.0.1:80
+	bind ::1:80
 	mode http
 	acl url_satellite hdr(host) -i {{ satellite_domain }}
 	acl is_httpchallenge path_beg /.well-known/acme-challenge/
@@ -48,7 +49,7 @@ frontend satellite-http
 	use_backend nginx if is_httpchallenge url_satellite
 
 frontend https
-	bind :::443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 	mode http
 	acl url_satellite hdr(host) -i {{ satellite_domain }}
 	acl url_satellite_cluster hdr(host) -i -m end .{{ satellite_clusters_domain }}

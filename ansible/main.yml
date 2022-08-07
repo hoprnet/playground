@@ -47,6 +47,7 @@
         groups: "{{ item.groups }}"
         append: true
       loop: "{{ vault_users|d([]) }}"
+      no_log: true
     - name: Create users ssh directories
       file:
         path: "{{ item.home }}/.ssh"
@@ -55,6 +56,7 @@
         owner: "{{ item.name }}"
         group: "{{ item.group }}"
       loop: "{{ vault_users|d([]) }}"
+      no_log: true
     - name: Configure users authorized ssh keys
       authorized_key:
         user: "{{ item.0.name }}"
@@ -63,22 +65,26 @@
       with_subelements:
         - "{{ vault_users|d([]) }}"
         - authorized_keys
+      no_log: true
     - name: Generate users ssh keys
       command: ssh-keygen -m PEM -b 4096 -t rsa -N '' -C '' -f {{ item.home }}/.ssh/id_rsa
       args:
         creates: "{{ item.home }}/.ssh/id_rsa"
       loop: "{{ vault_users|d([]) }}"
+      no_log: true
     - name: Read users public ssh keys
       command: cat {{ item.home }}/.ssh/id_rsa.pub
       register: ssh_pubkey
       loop: "{{ vault_users|d([]) }}"
       changed_when: false
+      no_log: true
     - name: Add users public ssh keys to own authorized keys
       authorized_key:
         user: "{{ item.item.name }}"
         state: present
         key: "{{ item.stdout }}"
       loop: "{{ ssh_pubkey.results }}"
+      no_log: true
     - name: Set proper permissions for users ssh private keys
       file:
         path: "{{ item[0].home }}/.ssh/{{ item[1] }}"
@@ -89,6 +95,7 @@
       with_nested:
         - "{{ vault_users|d([]) }}"
         - id_rsa
+      no_log: true
     - name: Set proper permissions for users ssh public keys
       file:
         path: "{{ item[0].home }}/.ssh/{{ item[1] }}"
@@ -99,6 +106,7 @@
       with_nested:
         - "{{ vault_users|d([]) }}"
         - id_rsa.pub
+      no_log: true
     - name: Configure sudo
       lineinfile:
         create: true
@@ -106,6 +114,7 @@
         dest: /etc/sudoers
         validate: visudo -cf %s
       loop: "{{ vault_users|d([]) }}"
+      no_log: true
     - name: Configure sshd
       template:
         src: sshd_config.j2

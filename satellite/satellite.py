@@ -266,76 +266,48 @@ class State:
         print("sync containers finished")
 
     def write_haproxy_configuration(self):
-        conf_frontends = []
-        conf_backends = []
-        bind_ports = []
+        conf_acls = []
 
         for c in self.active_containers():
             # need to use underscores in haproxy var names
             name_acl = c.name.replace("-", "_")
-            backends = ""
-            frontends = f"""
+            acls = f"""
     acl url_{name_acl} hdr(host) -i {c.name}.{args.target_domain}
             """
 
             for port in c.admin_ports:
-                frontends += f"""
+                acls += f"""
     acl port_{name_acl}_admin_{port} hdr(port) -i {port}
-    use_backend satellite_cluster_{name_acl}_admin if url_{name_acl} port_{name_acl}_admin_{port}
-                """
-
-                backends += f"""
-backend satellite_cluster_{name_acl}_admin_{port}
-    server server1 127.0.0.1:{port}
+    use_server satellite_cluster_{name_acl}_admin_{port} if url_{name_acl} port_{name_acl}_admin_{port}
+    server satellite_cluster_{name_acl}_admin_{port} 127.0.0.1:{port} weight 0
                 """
 
             for port in c.api_ports:
-                frontends += f"""
+                acls += f"""
     acl port_{name_acl}_api_{port} hdr(port) -i {port}
-    use_backend satellite_cluster_{name_acl}_api if url_{name_acl} port_{name_acl}_api_{port}
+    use_backend satellite_cluster_{name_acl}_api_{port} if url_{name_acl} port_{name_acl}_api_{port}
+    server satellite_cluster_{name_acl}_api_{port} 127.0.0.1:{port} weight 0
                 """
 
-                backends += f"""
-backend satellite_cluster_{name_acl}_api_{port}
-    server server1 127.0.0.1:{port}
-                """
+            conf_acls.append(acls)
 
-            conf_frontends.append(frontends)
-            conf_backends.append(backends)
+        conf = "backend satellite_cluster\n"
 
-            bind_ports += [f":::{p}" for p in [*c.admin_ports, *c.api_ports]]
-
-        conf = f"""
-frontend satellite_clusters
-        """
-
-        if args.target_protocol == "https":
-            conf += f"""
-    bind {",".join(bind_ports)} v4v6 alpn h2,http/1.1 ssl crt /etc/haproxy/certs/{args.target_domain}/fullchain_haproxy.pem
-            """
-        else:
-            conf += f"""
-    bind {",".join(bind_ports)} v4v6 h2,http/1.1
-            """
-
-        conf += f"""
-    redirect scheme https unless {{ ssl_fc }}
-    {os.linesep.join(conf_frontends)}
-
-{f"{os.linesep}{os.linesep}".join(conf_backends)}
-        """
+        if len(conf_acls) > 0:
+            conf += os.linesep.join(conf_acls)
 
         with open(args.haproxy_conf, "w", encoding="utf-8") as f:
             f.write(conf)
-            if args.post_haproxy_config_cmd:
-                subprocess
-                result = subprocess.run(args.post_haproxy_config_cmd, shell=True)
-                if result.returncode > 0:
-                    print(
-                        "execution of post_haproxy_config_cmd failed with exit code {}: {}".format(
-                            result.returncode, result.stderr
-                        )
+
+        if args.post_haproxy_config_cmd:
+            subprocess
+            result = subprocess.run(args.post_haproxy_config_cmd, shell=True)
+            if result.returncode > 0:
+                print(
+                    "execution of post_haproxy_config_cmd failed with exit code {}: {}".format(
+                        result.returncode, result.stderr
                     )
+                )
 
     def old_containers(self):
         now = int(round(time.time()))
@@ -407,17 +379,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.handle_request()
 
     def handle_request(self):
-        match (self.command, self.path):
-            case (("HEAD" | "GET") as command, "/api/clusters"):
-                self.set_response_headers()
-                self.handle_get_clusters_info()
-            case (("HEAD" | "POST") as command, "/api/clusters/activate"):
-                self.set_response_headers()
-                self.handle_activate_cluster()
-            case _:
-                self.send_response(404)
-                self.send_header("Content-type", "application/json")
-                self.end_headers()
+        c = self.command
+        p = self.path
+        if c in ["HEAD", "GET"] and p == "/api/clusters":
+            self.set_response_headers()
+            self.handle_get_clusters_info()
+        elif c in ["HEAD", "POST"] and p == "/api/clusters/activate":
+            self.set_response_headers()
+            self.handle_activate_cluster()
+        else:
+            self.send_response(404)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
 
     def handle_get_clusters_info(self):
         free_count = len(state.free_containers())

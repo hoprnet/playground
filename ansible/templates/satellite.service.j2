@@ -7,9 +7,7 @@ Wants=network-online.target
 Type=simple
 Restart=always
 Environment="PLUTO_IMAGE={{ pluto_image }}" "PLUTO_CONTAINER_COUNT={{ pluto_container_count }}" "PLUTO_CONTAINER_MAX_LIFETIME={{ pluto_container_max_lifetime }}" "PLUTO_CONTAINER_BASE_PORT={{ pluto_container_base_port }}" "HAPROXY_CONF={{ haproxy_extra_conf }}"
-ExecStart=/usr/bin/python3 /var/lib/satellite/satellite.py --target-domain {{
-satellite_clusters_domain }} --target-protocol https --post-haproxy-config-cmd
-"{{ satellite_haproxy_reload_cmd }}" $PLUTO_IMAGE $PLUTO_CONTAINER_COUNT $PLUTO_CONTAINER_MAX_LIFETIME $PLUTO_CONTAINER_BASE_PORT $HAPROXY_CONF
+ExecStart=/usr/bin/python3 /var/lib/satellite/satellite.py --target-domain {{ satellite_clusters_domain }} --target-protocol https --post-haproxy-config-cmd "{{ satellite_haproxy_reload_cmd }}" $PLUTO_IMAGE $PLUTO_CONTAINER_COUNT $PLUTO_CONTAINER_MAX_LIFETIME $PLUTO_CONTAINER_BASE_PORT $HAPROXY_CONF
 
 [Install]
 WantedBy=multi-user.target

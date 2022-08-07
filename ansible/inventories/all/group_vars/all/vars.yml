@@ -40,3 +40,4 @@ pluto_container_count: 40
 pluto_container_max_lifetime: 1200
 pluto_container_base_port: 19000
 haproxy_extra_conf: /etc/haproxy/haproxy.extra.conf
+satellite_haproxy_reload_cmd: systemctl reload haproxy
