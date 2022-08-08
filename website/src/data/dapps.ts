@@ -30,15 +30,9 @@ export const dapps:Apps = [
         icon: '/dapp-icons/boomerang_chat.svg',
     },
     {
-        key: 'hopr-admin',
-        name: 'hopr-admin',
-        url: 'https://github.com/hoprnet/hoprnet/tree/master/packages/hoprd/hopr-admin',
-        icon: '/dapp-icons/default.png',
-    },
-    {
         key: 'myne-chat',
         name: 'myne-chat',
-        url: 'https://github.com/hoprnet/myne-chat',
+        url: 'https://app.myne.chat',
         icon: '/dapp-icons/myne.chat.svg',
     }
 ]
