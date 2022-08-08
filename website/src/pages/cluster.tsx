@@ -1,38 +1,30 @@
-import type { State } from "../state";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import styles from "../../styles/pages/cluster.module.scss";
-import Gradient from "../components/gradient";
-import Playground from "../components/playground";
-import LinkHolder from "../components/link-holder";
 import { secondsToTime } from "../utils";
 
+//Components
+import Playground from "../components/playground";
+import LinkHolder from "../components/link-holder";
 import Section from "../future-hopr-lib-components/Section"
 import Dock from "../future-hopr-lib-components/Dock"
 
 //Types
-import { Apps, Clusters } from '../types'
+import { Apps, Clusters, ClustersAvailability } from '../types'
+import type { State } from "../state";
 
 const Cluster = (props: {
-  cluster: State["cluster"],
+  clustersAvailability: ClustersAvailability
   apps: Apps,
   clusters: Clusters
 }) => {
-  const [selection, setSelection] = useState<string>();
+  const [selection, setSelection] = useState<number>(-1);
   // time remaining until release - computed via secondsRemaining
   // used a memo here incase we introduce a countdown later
   const timeRemaining: string = useMemo(() => {
-    return secondsToTime(props.cluster.secondsRemaining);
-  }, [props.cluster.secondsRemaining]);
+    return secondsToTime(props.clustersAvailability.secondsUntilRelease);
+  }, [props.clustersAvailability.secondsUntilRelease]);
 
-  const apps = Object.entries(props.cluster.apps);
-  const links = selection ? props.cluster.apps[selection] : [];
-  console.log(links);
-
-  const parseApps = (apps: Apps, clusters: Clusters) => {
-    console.log('parseApps', apps, clusters);
-
-    return {}
-  }
+  const links = selection !== -1 ? props.apps[selection].links : [];
 
   return (
     <Section
@@ -54,8 +46,8 @@ const Cluster = (props: {
 
       {/* show apps */}
       <Dock
-        apps={parseApps(props.apps, props.clusters)}
-        iconClicked={(index: number) => { setSelection(apps[index][0]) }}
+        apps={props.apps}
+        iconClicked={setSelection}
       />
 
       <div className={`container section topGap ${styles.linksContainer}`}>

@@ -1,10 +1,9 @@
-import React, {useEffect, useRef} from "react";
+import React, { useState} from "react";
 import styled from "@emotion/styled";
-import lottie from "lottie-web";
 
 const StyledDock = styled.ul`
   width: 100%;
-  height: 74px;
+  height: 80px;
   border-radius: 16px;
   display: flex;
   justify-content: center;
@@ -34,12 +33,12 @@ const StyledDock = styled.ul`
     .li-active {
       &::after {
         position: absolute;
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
+        background: rgb(255, 255, 255);
         content: "";
-        bottom: 2px;
+        bottom: 1px;
       }
     }
 
@@ -89,6 +88,8 @@ const StyledDock = styled.ul`
         height: 100%;
         object-fit: cover;
         transition: 0.2s;
+        padding: 5px;
+        border-radius: 14px;
       }
       .ico-bin {
         width: 94% !important;
@@ -114,27 +115,8 @@ const StyledDock = styled.ul`
   }
 `
 
-
-const placeholderApps = [
-    {name:"Finder", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853981255cc36b3a37af_finder.png"},
-    {name:"Siri", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853ff3bafbac60495771_siri.png"},
-    {name:"LaunchPad", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853943597517f128b9b4_launchpad.png"},
-    {name:"Contacts", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853743597518c528b9b3_contacts.png"},
-    {name:"Notes", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853c849ec3735b52cef9_notes.png"},
-    {name:"Reminders", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853d44d99641ce69afeb_reminders.png"},
-    {name:"Photos", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853c55558a2e1192ee09_photos.png"},
-    {name:"Messages", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853a55558a68e192ee08_messages.png"},
-    {name:"FaceTime", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f708537f18e2cb27247c904_facetime.png"},
-    {name:"Music", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853ba0782d6ff2aca6b3_music.png"},
-    {name:"Podcasts", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853cc718ba9ede6888f9_podcasts.png"},
-    {name:"TV", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f708540dd82638d7b8eda70_tv.png"},
-    {name:"App Store", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853270b5e2ccfd795b49_appstore.png"},
-    {name:"Safari", icon:"https://uploads-ssl.webflow.com/5f7081c044fb7b3321ac260e/5f70853ddd826358438eda6d_safari.png"},
-    {name:"Bin", icon:"https://findicons.com/files/icons/569/longhorn_objects/128/trash.png"}
-]
-
 function Dock(props) {
-
+    const [indexActive, set_indexActive] = useState(null);
     // const loaded = useRef(false);
 
     // useEffect(() => {
@@ -174,33 +156,19 @@ function Dock(props) {
     //     loaded.current = true;
     // }, []);
 
-    function parseApps(apps){
-        let parsedApps = [];
-
-        for (let i = 0; i < apps.length; i++) {
-            parsedApps.push(
-                {
-                    name: apps[i][0],
-                    icon: placeholderApps[i].icon
-                }
-            )
-        }
-        return parsedApps
-    }
-
-    const parsedApps = parseApps(props.apps);
-    console.log('parsedApps', parsedApps)
-
     return (
         <StyledDock>
             <div className="dock-container">
                 {
-                    parsedApps.map((app, index) =>{
+                    props.apps.map((app, index) =>{
                         return (
                             <li
-                                className={`li-${index} icon-in-dock`}
+                                className={`li-${index} icon-in-dock ${index === indexActive ? 'li-active' : ''}`}
                                 key={`li-${index}`}
-                                onClick={()=>{props.iconClicked(index)}}
+                                onClick={()=>{
+                                    set_indexActive(index);
+                                    props.iconClicked(index);
+                                }}
                             >
                                 <div className="name">{app.name}</div>
                                 <img
