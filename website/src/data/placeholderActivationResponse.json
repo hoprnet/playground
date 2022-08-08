@@ -1,0 +1,31 @@
+{
+  "cluster_name": "aras_callisto_olive",
+  "cluster_valid_until": 1659952161578,
+  "cluster_nodes": [
+    {
+      "api_url": "http://aras_callisto_olive.localhost:19060",
+      "admin_url": "http://aras_callisto_olive.localhost:19065",
+      "api_token": "token"
+    },
+    {
+      "api_url": "http://aras_callisto_olive.localhost:19061",
+      "admin_url": "http://aras_callisto_olive.localhost:19066",
+      "api_token": "token"
+    },
+    {
+      "api_url": "http://aras_callisto_olive.localhost:19062",
+      "admin_url": "http://aras_callisto_olive.localhost:19067",
+      "api_token": "token"
+    },
+    {
+      "api_url": "http://aras_callisto_olive.localhost:19063",
+      "admin_url": "http://aras_callisto_olive.localhost:19068",
+      "api_token": "token"
+    },
+    {
+      "api_url": "http://aras_callisto_olive.localhost:19064",
+      "admin_url": "http://aras_callisto_olive.localhost:19069",
+      "api_token": "token"
+    }
+  ]
+}

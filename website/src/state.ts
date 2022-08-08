@@ -15,7 +15,7 @@ export type State = {
     secondsUntilRelease: number; // seconds
   };
   cluster: {
-    name: string,
+    name?: string,
     secondsRemaining: number; // seconds
     apps: {
       [app: string]: string[];
@@ -72,28 +72,28 @@ const useAppState = () => {
   }, []);
 
   // launch cluster
-  const launchCluster = () => {
-    const api_url = urlParams.api || API_ENDPOINT || "";
-    const api_url_clusters = `${api_url}/api/clusters/activate`;
-  console.log(`Calling API at ${api_url_clusters}`);
-
-  const req = new Request(api_url_clusters);
-  fetch(req, { method: 'POST' })
-      .then(response => response.json())
-      .then(data => {
-          setState((draft) => {
-            draft.page = "playground";
-            return draft;
-          });
-        })
-    .catch(err => {
-      console.error(`API call failed with ${err}`)
-    });
-  };
+  // const launchCluster = () => {
+  //   const api_url = urlParams.api || NEXT_PUBLIC_API_ENDPOINT || "";
+  //   const api_url_clusters = `${api_url}/api/clusters/activate`;
+  // console.log(`Calling API at ${api_url_clusters}`);
+  //
+  // const req = new Request(api_url_clusters);
+  // fetch(req, { method: 'POST', mode: 'no-cors'})
+  //     .then(response => response.json())
+  //     .then(data => {
+  //         setState((draft) => {
+  //           draft.page = "playground";
+  //           return draft;
+  //         });
+  //       })
+  //   .catch(err => {
+  //     console.error(`API call failed with ${err}`)
+  //   });
+  // };
 
   return {
     state,
-    launchCluster,
+  //  launchCluster,
   };
 };
 

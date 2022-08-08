@@ -1,25 +1,40 @@
-import type { State } from "../state";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import Router from 'next/router'
 import styles from "../../styles/pages/cluster.module.scss";
-import Gradient from "../components/gradient";
-import Playground from "../components/playground";
-import LinkHolder from "../components/link-holder";
 import { secondsToTime } from "../utils";
 
+//Components
+import Playground from "../components/playground";
+import LinkHolder from "../components/link-holder";
 import Section from "../future-hopr-lib-components/Section"
 import Dock from "../future-hopr-lib-components/Dock"
 
-const Cluster = (props: { cluster: State["cluster"] }) => {
-  const [selection, setSelection] = useState<string>();
-  // time remaining until release - computed via secondsRemaining
-  // used a memo here incase we introduce a countdown later
-  const timeRemaining: string = useMemo(() => {
-    return secondsToTime(props.cluster.secondsRemaining);
-  }, [props.cluster.secondsRemaining]);
+//Types
+import { App, Apps, Clusters, ClustersAvailability, Links } from '../types'
 
-  const apps = Object.entries(props.cluster.apps);
-  const links = selection ? props.cluster.apps[selection] : [];
-  console.log(links);
+const Cluster = (props: {
+  clustersAvailability: ClustersAvailability
+  apps: Apps,
+  clusters: Clusters,
+  clustersValidUntil: number,
+}) => {
+  const [selection, set_selection] = useState<number>(-1);
+  const [timeRemaining, set_timeRemaining] = useState<string>('20:00');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const leftSeconds = props.clustersValidUntil - Date.now()/1000;
+      if(leftSeconds < 0) {
+        // @ts-ignore
+        Router.reload(window.location.pathname);
+      } else {
+        set_timeRemaining(secondsToTime(Math.floor(leftSeconds)));
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const links: Links = selection !== -1 ? props.apps[selection].links : [];
 
   return (
     <Section
@@ -41,24 +56,9 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
 
       {/* show apps */}
       <Dock
-        apps={apps}
-        iconClicked={(index: number) => { setSelection(apps[index][0]) }}
+        apps={props.apps}
+        iconClicked={set_selection}
       />
-      {/*<div className={`container section ${styles.apps}`}>*/}
-      {/*  {apps.map(([name]) => (*/}
-      {/*    <div*/}
-      {/*      key={name}*/}
-      {/*      onClick={() => {*/}
-      {/*        setSelection(name);*/}
-      {/*      }}*/}
-      {/*      className={`${styles.appBox} ${*/}
-      {/*        selection === name ? "selected" : ""*/}
-      {/*      }`}*/}
-      {/*    >*/}
-      {/*      {name}*/}
-      {/*    </div>*/}
-      {/*  ))}*/}
-      {/*</div>*/}
 
       <div className={`container section topGap ${styles.linksContainer}`}>
         <div>
@@ -74,7 +74,7 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
           for all available commands.
         </div>
         <div className={`bottomGap topGap ${styles.links}`}>
-          {links.map((link, index) => (
+          {links?.map((link, index) => (
             <LinkHolder key={link} nodeNumber={index} link={link} />
           ))}
         </div>
