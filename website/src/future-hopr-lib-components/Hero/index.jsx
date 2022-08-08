@@ -66,7 +66,7 @@ function Hero(props) {
             </ImageContainer>
 
             <Typography type="h2" center>
-                Welcome to the HOPR Playground, where you can try out the HOPR protocol on a remotely hosted node network.
+                Welcome to the HOPR Playground! Try out the HOPR protocol without installing anything.
             </Typography>
 
         </SSection>

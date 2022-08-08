@@ -41,10 +41,6 @@
 
 .linksContainer {
     display: flex;
-
-    @media (min-width: $desktop-width) {
-        width: 60%;
-    }
 }
 
 .links {
