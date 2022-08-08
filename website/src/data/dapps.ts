@@ -2,13 +2,43 @@ import { Apps } from '../types/index'
 
 export const dapps:Apps = [
     {
-        key: 'string',
-        name: 'string',
-        url: 'string',
+        key: 'hopr-status-board',
+        name: 'hopr-status-board',
+        url: 'https://hopr-status-board.vercel.app/',
+        author: '0xMrH',
+        icon: '/dapp-icons/cockpit.svg',
     },
     {
-        key: 'string',
-        name: 'string',
-        url: 'string',
+        key: 'hopr-visual',
+        name: 'hopr-visual',
+        url: 'https://hopr-visual.vercel.app/',
+        author: 'Eliaxie',
+        icon: '/dapp-icons/visualizer.svg',
+    },
+    {
+        key: 'hopr-chess',
+        name: 'hopr-chess',
+        url: 'https://hopr-chess.vercel.app/',
+        author: 'vividwood',
+        icon: '/dapp-icons/chess.svg',
+    },
+    {
+        key: 'hopr-boomerang-chat',
+        name: 'hopr-boomerang-chat',
+        url: 'https://hopr-boomerang-chat.vercel.app/',
+        author: '0xjjpa',
+        icon: '/dapp-icons/boomerang_chat.svg',
+    },
+    {
+        key: 'hopr-admin',
+        name: 'hopr-admin',
+        url: 'https://github.com/hoprnet/hoprnet/tree/master/packages/hoprd/hopr-admin',
+        icon: '/dapp-icons/default.png',
+    },
+    {
+        key: 'myne-chat',
+        name: 'myne-chat',
+        url: 'https://github.com/hoprnet/myne-chat',
+        icon: '/dapp-icons/myne.chat.svg',
     }
 ]
