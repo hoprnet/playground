@@ -15,14 +15,15 @@ start-satellite: port=8998
 start-satellite: size=3
 start-satellite: ## start local server instance
 	./satellite.py --port $(port) --sync-wait-time 1 \
-		--post-haproxy-config-cmd "lsof -i :8997 -t | xargs kill -USR2" \
+		--post-haproxy-config-cmd \
+		"cat /tmp/haproxy.pid | xargs kill -s USR2" \
 		$(image) $(size) $(max_lifetime) 19000 "$(haproxy_conf)"
 
 .PHONY: start-haproxy
 start-haproxy: ## start local haproxy instance
 	# ensure custom configration file is available when haproxy starts up
 	echo "backend satellite_cluster" > "$(haproxy_conf)"
-	haproxy -f haproxy.conf -f "$(haproxy_conf)"
+	haproxy -W -f haproxy.conf -f "$(haproxy_conf)"
 
 .PHONY: start-website
 start-website: ## start local website instance

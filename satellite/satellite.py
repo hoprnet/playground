@@ -234,6 +234,7 @@ class Container:
 
 class State:
     def __init__(self, containers=[]):
+        self.last_haproxy_conf = ""
         self.containers = containers
         # generate 10x the amount of names we need
         self.available_container_names = generate_container_names(
@@ -294,39 +295,61 @@ class State:
 
     def write_haproxy_configuration(self):
         conf_acls = []
+        conf_frontends = []
+        conf_backends = []
 
         for c in self.active_containers():
-            # need to use underscores in haproxy var names
-            name_acl = c.name.replace("-", "_")
-            acls = f"""
-    acl url_{name_acl} hdr(host) -i {c.name}.{args.target_domain}
-            """
+            frontend = ""
+            ports = [*c.admin_ports, *c.api_ports]
+
+            if args.target_protocol == 'https':
+                frontend += f"""
+frontend satellite_cluster_{c.name}
+                """
+            else:
+                binds = [f"127.0.0.1:{p}" for p in ports]
+                binds += [f"::1:{p}" for p in ports]
+                frontend += f"""
+frontend satellite_cluster_{c.name}
+	bind {','.join(binds)}
+    acl url_{c.name} hdr(host) -i -m beg {c.name}.{args.target_domain}
+                """
 
             for port in c.admin_ports:
-                acls += f"""
-    acl port_{name_acl}_admin_{port} hdr(port) -i {port}
-    use_server satellite_cluster_{name_acl}_admin_{port} if url_{name_acl} port_{name_acl}_admin_{port}
-    server satellite_cluster_{name_acl}_admin_{port} 127.0.0.1:{port} weight 0
+                frontend += f"""
+    acl port_{c.name}_admin_{port} hdr(port) -i {port}
+    use_backend satellite_cluster_{c.name}_admin_{port} if url_{c.name}
+    port_{c.name}_admin_{port}
                 """
+                conf_backends += [f"""
+backend satellite_cluster_{c.name}_admin_{port}
+    server satellite_cluster_{c.name}_admin_{port} 127.0.0.1:{port}
+                """]
 
             for port in c.api_ports:
-                acls += f"""
-    acl port_{name_acl}_api_{port} hdr(port) -i {port}
-    use_backend satellite_cluster_{name_acl}_api_{port} if url_{name_acl} port_{name_acl}_api_{port}
-    server satellite_cluster_{name_acl}_api_{port} 127.0.0.1:{port} weight 0
+                frontend += f"""
+    acl port_{c.name}_api_{port} hdr(port) -i {port}
+    use_backend satellite_cluster_{c.name}_api_{port} if url_{c.name}
+    port_{c.name}_api_{port}
                 """
+                conf_backends += [f"""
+backend satellite_cluster_{c.name}_api_{port}
+    server satellite_cluster_{c.name}_api_{port} 127.0.0.1:{port}
+                """]
 
-            conf_acls.append(acls)
+            conf_frontends.append(frontend)
 
-        conf = "backend satellite_cluster\n"
+        conf = f"""
+{os.linesep.join(conf_frontends)}
 
-        if len(conf_acls) > 0:
-            conf += os.linesep.join(conf_acls)
+{os.linesep.join(conf_backends)}
+"""
 
         with open(args.haproxy_conf, "w", encoding="utf-8") as f:
             f.write(conf)
+            f.write("")
 
-        if args.post_haproxy_config_cmd:
+        if args.post_haproxy_config_cmd and self.last_haproxy_conf != conf:
             result = subprocess.run(args.post_haproxy_config_cmd, shell=True, capture_output=True)
             if result.returncode > 0:
                 print(
@@ -334,6 +357,8 @@ class State:
                         result.returncode, result.stderr
                     )
                 )
+
+        self.last_haproxy_conf = conf
 
     def old_containers(self):
         now = int(round(time.time()))
@@ -404,22 +429,15 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.handle_request()
 
-    def do_OPTIONS(self):
-        self.handle_request()
-
     def handle_request(self):
         c = self.command
         p = self.path
         if c in ["HEAD", "GET"] and p == "/api/clusters":
             self.set_response_headers()
             self.handle_get_clusters_info()
-        elif c in ["OPTIONS"] and p == "/api/clusters":
-            self.set_response_headers()
         elif c in ["HEAD", "POST"] and p == "/api/clusters/activate":
             self.set_response_headers()
             self.handle_activate_cluster()
-        elif c in ["OPTIONS"] and p == "/api/clusters/activate":
-            self.set_response_headers()
         else:
             self.send_response(404)
             self.send_header("Content-type", "application/json")
@@ -429,7 +447,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         free_count = len(state.free_containers())
         msg = {
             "total_clusters_count": len(state.containers),
-            "free_clusters_count": free_count,
+            "free_clusters_count": free_count
         }
         self.wfile.write(json.dumps(msg).encode())
 

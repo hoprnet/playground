@@ -8,6 +8,7 @@ global
   user haproxy
   group haproxy
   daemon
+	lua-load /etc/haproxy/haproxy.cors.lua
 
 	ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
 	ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
@@ -52,9 +53,15 @@ frontend https
 	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 	mode http
 	acl url_satellite hdr(host) -i {{ satellite_domain }}
-	acl url_satellite_cluster hdr(host) -i -m end .{{ satellite_clusters_domain }}
+
+	# handle CORS
+	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
+	http-response lua.cors
+	http-response add-header Access-Control-Allow-Credentials 'true'
+	http-response add-header Access-Control-Expose-Headers 'Authorization'
+
 	use_backend satellite if url_satellite
-	use_backend satellite_cluster if url_satellite_cluster
+	default_backend satellite_cluster
 
 backend private_monitoring
 	stats enable
@@ -62,10 +69,8 @@ backend private_monitoring
 	stats refresh 5s
 
 backend nginx
-	mode http
 	server nginx 127.0.0.1:8080
 
 backend satellite
-  mode http
 	http-request add-header X-Forwarded-Proto https if { ssl_fc }
 	server satellite 127.0.0.1:8998
