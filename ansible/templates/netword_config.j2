@@ -1,0 +1,16 @@
+{{ ansible_managed | comment }}
+
+[Match]
+MACAddress={{ network_interface_mac }}
+
+[Network]
+Address={{ network_ipv6 }}/64
+Gateway={{ network_ipv4_gw }}
+Gateway=fe80::1
+{% for s in network_dns_servers %}
+DNS={{ s }}
+{% endfor %}
+
+[Address]
+Address={{ network_ipv4 }}
+Peer={{ network_ipv4_gw }}/32

@@ -1,0 +1,43 @@
+---
+network_dns_servers:
+  - 9.9.9.9
+  - 149.112.112.112
+  - 2620:fe::fe
+  - 2620:fe::9
+  - 84.200.69.80
+  - 84.200.70.40
+  - 2001:1608:10:25::1c04:b12f
+  - 2001:1608:10:25::9249:d69b
+  - 208.67.222.123
+  - 208.67.220.123
+packages_standard:
+  - bash
+  - bc
+  - curl
+  - git
+  - htop
+  - liblz4-tool
+  - lsof
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - mosh
+  - nmap
+  - policykit-1
+  - python3-jmespath
+  - python3-passlib
+  - python3-pexpect
+  - python3-pip
+  - python3-virtualenv
+  - rsync
+  - sudo
+  - tmux
+  - vim
+satellite_domain: playground-alpha.hoprtech.net
+satellite_clusters_domain: playground.hoprnet.org
+pluto_image: gcr.io/hoprassociation/hopr-pluto:master-goerli
+pluto_container_count: 40
+pluto_container_max_lifetime: 1200
+pluto_container_base_port: 19000
+haproxy_extra_conf: /etc/haproxy/haproxy.extra.conf
+satellite_haproxy_reload_cmd: systemctl reload haproxy

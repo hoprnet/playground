@@ -1,0 +1,6 @@
+---
+network_ipv4: 95.216.42.119
+network_ipv4_gw: 95.216.42.65
+network_ipv6: 2a01:4f9:2a:28af::2
+network_interface: enp98s0f0
+network_interface_mac: 6c:b3:11:23:51:74

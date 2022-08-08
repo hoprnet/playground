@@ -1,0 +1,172 @@
+# TODO: install docker, see https://docs.docker.com/engine/install/debian/
+# TODO: install cert creation
+# TODO: add cert renewal script and cron job
+---
+- name: Configure apt, users, ssh
+  hosts: all
+  tasks:
+    - name: Set empty ifupdown configuration
+      template:
+        src: network_interfaces.j2
+        dest: /etc/network/interfaces
+    - name: Remove previous ethernet interface configuration files (systemd-netword)
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_fileglob:
+        - /etc/systemd/network/*.conf
+        - /etc/systemd/network/wired.network
+    - name: Configure ethernet interfaces (systemd-netword)
+      template:
+        src: netword_config.j2
+        dest: /etc/systemd/network/main.network
+      notify: restart networking
+    - name: Read hostname
+      command: hostname
+      register: remote_hostname
+      changed_when: false
+    - name: Set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+      when: inventory_hostname != remote_hostname.stdout
+    - name: Configure apt repositories
+      template:
+        src: apt_sources.list.j2
+        dest: /etc/apt/sources.list
+    - name: Install standard software tools
+      apt:
+        name: "{{ packages_standard|d([]) }}"
+        state: latest
+        update_cache: true
+    - name: Configure users
+      user:
+        name: "{{ item.name }}"
+        shell: /usr/bin/bash
+        password: "{{ item.password_bcrypt }}"
+        createhome: true
+        groups: "{{ item.groups }}"
+        append: true
+      loop: "{{ vault_users|d([]) }}"
+      no_log: true
+    - name: Create users ssh directories
+      file:
+        path: "{{ item.home }}/.ssh"
+        state: directory
+        mode: 488
+        owner: "{{ item.name }}"
+        group: "{{ item.group }}"
+      loop: "{{ vault_users|d([]) }}"
+      no_log: true
+    - name: Configure users authorized ssh keys
+      authorized_key:
+        user: "{{ item.0.name }}"
+        state: present
+        key: "{{ item.1 }}"
+      with_subelements:
+        - "{{ vault_users|d([]) }}"
+        - authorized_keys
+      no_log: true
+    - name: Generate users ssh keys
+      command: ssh-keygen -m PEM -b 4096 -t rsa -N '' -C '' -f {{ item.home }}/.ssh/id_rsa
+      args:
+        creates: "{{ item.home }}/.ssh/id_rsa"
+      loop: "{{ vault_users|d([]) }}"
+      no_log: true
+    - name: Read users public ssh keys
+      command: cat {{ item.home }}/.ssh/id_rsa.pub
+      register: ssh_pubkey
+      loop: "{{ vault_users|d([]) }}"
+      changed_when: false
+      no_log: true
+    - name: Add users public ssh keys to own authorized keys
+      authorized_key:
+        user: "{{ item.item.name }}"
+        state: present
+        key: "{{ item.stdout }}"
+      loop: "{{ ssh_pubkey.results }}"
+      no_log: true
+    - name: Set proper permissions for users ssh private keys
+      file:
+        path: "{{ item[0].home }}/.ssh/{{ item[1] }}"
+        state: file
+        mode: 384
+        owner: "{{ item[0].name }}"
+        group: "{{ item[0].group }}"
+      with_nested:
+        - "{{ vault_users|d([]) }}"
+        - id_rsa
+      no_log: true
+    - name: Set proper permissions for users ssh public keys
+      file:
+        path: "{{ item[0].home }}/.ssh/{{ item[1] }}"
+        state: file
+        mode: 416
+        owner: "{{ item[0].name }}"
+        group: "{{ item[0].group }}"
+      with_nested:
+        - "{{ vault_users|d([]) }}"
+        - id_rsa.pub
+      no_log: true
+    - name: Configure sudo
+      lineinfile:
+        create: true
+        line: "{{ item.name }} ALL=(ALL) ALL"
+        dest: /etc/sudoers
+        validate: visudo -cf %s
+      loop: "{{ vault_users|d([]) }}"
+      no_log: true
+    - name: Configure sshd
+      template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+      notify: reload sshd
+- name: Configure HAProxy, Nginx, Satellite
+  hosts: all
+  tasks:
+    - name: Install HAProxy, Nginx
+      apt:
+        name: '{{ item }}'
+      loop:
+        - haproxy
+        - nginx
+    - name: Configure HAProxy (main config)
+      template:
+        src: haproxy.conf.j2
+        dest: /etc/haproxy/haproxy.conf
+    - name: Configure HAProxy (extra config)
+      template:
+        src: haproxy.extra.conf.j2
+        dest: '{{ haproxy_extra_conf }}'
+    - name: Configure HAProxy service
+      template:
+        src: haproxy.service.j2
+        dest: /etc/systemd/system/haproxy.service
+    - name: Configure Nginx
+      template:
+        src: nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+    - name: Create satellite directory
+      file:
+        name: /var/lib/satellite
+        state: directory
+    - name: Upload satellite
+      copy:
+        src: ../satellite/satellite.py
+        dest: /var/lib/satellite/satellite.py
+        owner: root
+        group: sudo
+        mode: 0770
+    - name: Configure satellite service
+      template:
+        src: satellite.service.j2
+        dest: /etc/systemd/system/satellite.service
+    - name: Enable services
+      systemd:
+        name: '{{ item }}'
+        daemon_reload: true
+        enabled: true
+        state: restarted
+      loop:
+        - haproxy
+        - nginx
+        - satellite

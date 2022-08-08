@@ -1,7 +1,10 @@
 { pkgs ? import <nixpkgs> {}, ... }:
 let
   linuxPkgs = with pkgs; lib.optional stdenv.isLinux (
+    [
     inotifyTools
+    mkpasswd
+  ]
   );
   macosPkgs = with pkgs; lib.optional stdenv.isDarwin (
     with darwin.apple_sdk.frameworks; [
@@ -29,6 +32,16 @@ mkShell {
 
     # infrastructure
     terraform
+    kubernetes-helm
+    # using python 3.9 because its also the default on Debian 11
+    python39
+    python39Packages.black
+    python39Packages.ruamel_yaml
+    python39Packages.simplejson
+    python39Packages.jmespath
+    ansible_2_13
+    ansible-lint
+    haproxy
 
     # custom pkg groups
     macosPkgs

@@ -22,6 +22,13 @@ fmt: ## format source files
 	cat Cargo.toml | yj -tt > Cargo.toml.new
 	mv Cargo.toml.new Cargo.toml
 
+build-docker-minikube: ## builds the Docker image using the Docker daemon used by Minikube
+	@echo "=== Ensure minikube is running"
+	minikube start
+	@echo "=== Build Docker image"
+	eval $(minikube docker-env); \
+		docker build -t playground:local-dev .
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

@@ -1,0 +1,51 @@
+{{ ansible_managed | comment }}
+
+Protocol 2
+Port 22
+
+ListenAddress 127.0.0.1
+ListenAddress ::1
+ListenAddress {{ network_ipv4 }}
+ListenAddress {{ network_ipv6 }}
+
+GatewayPorts no
+
+# X11 tunneling options
+X11Forwarding no
+
+PrintMotd yes
+
+KeepAlive yes
+
+StrictModes yes
+
+PermitEmptyPasswords no
+PasswordAuthentication no
+
+# Supported HostKey algorithms by order of preference.
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+
+KexAlgorithms curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
+
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+
+# Password based logins are disabled - only public key based logins are allowed.
+AuthenticationMethods publickey
+
+# LogLevel VERBOSE logs user's key fingerprint on login. Needed to have a clear audit track of which key was using to log in.
+LogLevel VERBOSE
+
+# Root login is not allowed for auditing reasons.
+PermitRootLogin no
+
+# Use kernel sandbox mechanisms where possible in unprivilegied processes
+# Systrace on OpenBSD, Seccomp on Linux, seatbelt on MacOSX/Darwin, rlimit elsewhere.
+UsePrivilegeSeparation sandbox
+
+Subsystem       sftp    /usr/libexec/sftp-server
+
+AllowUsers {{ vault_users|d([])|selectattr('allow_ssh_access', 'defined')|selectattr('allow_ssh_access')|map(attribute='name') | join(' ') }}

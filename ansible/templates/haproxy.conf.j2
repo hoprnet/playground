@@ -1,0 +1,71 @@
+
+global
+  log /dev/log  local0
+  log /dev/log  local1 notice
+	chroot /var/lib/haproxy
+  stats socket /run/haproxy/admin.stats mode 660 level admin expose-fd listeners
+	stats timeout 30s
+  user haproxy
+  group haproxy
+  daemon
+
+	ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+	ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+	ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+
+defaults
+  log global
+  mode http
+  option httplog
+  option dontlognull
+  option redispatch
+  retries 3
+  timeout client 30s
+  timeout server 30s
+  timeout connect 4s
+  timeout http-request 10s
+  timeout http-keep-alive 2s
+  timeout queue 5s
+  timeout tunnel 2m
+  timeout client-fin 1s
+  timeout server-fin 1s
+
+frontend stats
+  bind ::1:8404
+	bind 127.0.0.1:8404
+	option http-use-htx
+	http-request use-service prometheus-exporter if { path /metrics }
+	stats enable
+	stats uri /stats
+	stats refresh 10s
+
+frontend satellite-http
+	bind 127.0.0.1:80
+	bind ::1:80
+	mode http
+	acl url_satellite hdr(host) -i {{ satellite_domain }}
+	acl is_httpchallenge path_beg /.well-known/acme-challenge/
+	redirect scheme https if url_satellite !{ ssl_fc } !is_httpchallenge
+	use_backend nginx if is_httpchallenge url_satellite
+
+frontend https
+	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+	mode http
+	acl url_satellite hdr(host) -i {{ satellite_domain }}
+	acl url_satellite_cluster hdr(host) -i -m end .{{ satellite_clusters_domain }}
+	use_backend satellite if url_satellite
+	use_backend satellite_cluster if url_satellite_cluster
+
+backend private_monitoring
+	stats enable
+	stats uri /admin?stats
+	stats refresh 5s
+
+backend nginx
+	mode http
+	server nginx 127.0.0.1:8080
+
+backend satellite
+  mode http
+	http-request add-header X-Forwarded-Proto https if { ssl_fc }
+	server satellite 127.0.0.1:8998

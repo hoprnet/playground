@@ -1,0 +1,12 @@
+---
+- name: restart networking
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - networking
+    - systemd-networkd
+- name: reload sshd
+  ansible.builtin.service:
+    name: sshd
+    state: reloaded
