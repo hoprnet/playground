@@ -65,7 +65,7 @@ fi
 log "check if satellite is running on port ${dev_port}"
 if ! nc -z -w 1 127.0.0.1 ${dev_port}; then
   log "start satellite on port ${dev_port}"
-  make start-local port=${dev_port} max_lifetime=10 size=${clusters_max_count} &
+  make start-satellite port=${dev_port} max_lifetime=10 size=${clusters_max_count} &
   sleep 10
 fi
 

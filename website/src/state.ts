@@ -1,6 +1,10 @@
+import 'process';
+
 import { useState, useEffect } from "react";
 import useWebsocket from "./hooks/useWebsocket";
 import { isSSR, getUrlParams } from "./utils";
+
+const { NEXT_PUBLIC_API_ENDPOINT } = process.env
 
 export type State = {
   page: "introduction" | "playground";
@@ -11,6 +15,7 @@ export type State = {
     secondsUntilRelease: number; // seconds
   };
   cluster: {
+    name: string,
     secondsRemaining: number; // seconds
     apps: {
       [app: string]: string[];
@@ -34,62 +39,55 @@ const useAppState = () => {
       apps: {},
     },
   });
-  // initialize websocket
-  const { state: connState, socketRef } = useWebsocket(urlParams.api || "");
+  const api_url = urlParams.api || NEXT_PUBLIC_API_ENDPOINT || "";
+  console.log(`urlParams.api: ${urlParams.api}`)
+  console.log(`API_ENDPOINT: ${NEXT_PUBLIC_API_ENDPOINT}`)
+  console.log(`api_url: ${api_url}`)
 
-  // called by WS event handler to handle messages
-  const handleMessages = (event: MessageEvent<any>): void => {
-    console.log("received websocket message:", event.data);
-    try {
-      const data = JSON.parse(event.data);
-      if (data.type === "clusters_update") {
-        setState((draft) => {
-          draft.clusters.total = data.clusters_count;
-          draft.clusters.used = data.clusters_count - data.clusters_available;
-          draft.clusters.available = data.clusters_available;
-          draft.clusters.secondsUntilRelease = data.secondsUntilRelease;
-          return draft;
-        });
-      } else if (data.type === "cluster_update") {
-        setState((draft) => {
-          draft.cluster = data.cluster;
-          draft.cluster.secondsRemaining = data.secondsRemaining;
-          return draft;
-        });
-      }
-    } catch (error) {
-      console.error("Error parsing WS message", error);
-    }
-  };
+  const api_url_clusters = `${api_url}/api/clusters`;
+  console.log(`Calling API at ${api_url_clusters}`);
 
-  // runs everytime socket reference is changed (every reconnect)
-  // adds listener for messages
+  const req = new Request(api_url_clusters);
+  fetch(req)
+      .then(response => response.json())
+      .then(data => {
+          setState((draft) => {
+            draft.clusters.total = data.total_clusters_count;
+            draft.clusters.used = data.total_clusters_count - data.free_clusters_count;
+            draft.clusters.available = data.free_clusters_count;
+            draft.clusters.secondsUntilRelease = data.seconds_until_release;
+            return draft;
+          });
+        })
+    .catch(err => {
+      console.error(`API call failed with ${err}`)
+    });
+
   useEffect(() => {
-    if (!socketRef.current) return;
-
-    // handle messages
-    socketRef.current.addEventListener("message", handleMessages);
-
-    // cleanup when unmounting
-    return () => {
-      if (!socketRef.current) return;
-      socketRef.current.removeEventListener("message", handleMessages);
-    };
-  }, [socketRef.current]);
+  }, []);
 
   // launch cluster
   const launchCluster = () => {
-    // some call to backend
-    // some reply from backend
-    setState((draft) => {
-      draft.page = "playground";
-      return draft;
+    const api_url = urlParams.api || API_ENDPOINT || "";
+    const api_url_clusters = `${api_url}/api/clusters/activate`;
+  console.log(`Calling API at ${api_url_clusters}`);
+
+  const req = new Request(api_url_clusters);
+  fetch(req, { method: 'POST' })
+      .then(response => response.json())
+      .then(data => {
+          setState((draft) => {
+            draft.page = "playground";
+            return draft;
+          });
+        })
+    .catch(err => {
+      console.error(`API call failed with ${err}`)
     });
   };
 
   return {
     state,
-    connState,
     launchCluster,
   };
 };

@@ -378,15 +378,22 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.handle_request()
 
+    def do_OPTIONS(self):
+        self.handle_request()
+
     def handle_request(self):
         c = self.command
         p = self.path
         if c in ["HEAD", "GET"] and p == "/api/clusters":
             self.set_response_headers()
             self.handle_get_clusters_info()
+        elif c in ["OPTIONS"] and p == "/api/clusters":
+            self.set_response_headers()
         elif c in ["HEAD", "POST"] and p == "/api/clusters/activate":
             self.set_response_headers()
             self.handle_activate_cluster()
+        elif c in ["OPTIONS"] and p == "/api/clusters/activate":
+            self.set_response_headers()
         else:
             self.send_response(404)
             self.send_header("Content-type", "application/json")
