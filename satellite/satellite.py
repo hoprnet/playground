@@ -348,53 +348,31 @@ class State:
         print("sync containers finished")
 
     def write_haproxy_configuration(self):
-        conf_acls = []
         conf_backends = []
-        conf_frontends = []
 
-        frontend_api = f"""
-frontend satellite_clusters_api
-    bind 127.0.0.1:{PUBLIC_API_PORT}
-    bind ::1:{PUBLIC_API_PORT}
+        backend_admin = f"""
+backend satellite_clusters_admin
         """
-
-        frontend_admin = f"""
-frontend satellite_clusters_admin
-    bind 127.0.0.1:{PUBLIC_ADMIN_PORT}
-    bind ::1:{PUBLIC_ADMIN_PORT}
+        backend_api = f"""
+backend satellite_clusters_api
         """
-        if args.target_protocol == "https":
-            # TODO: fix for SSL in deployed setting
-            frontend_admin = ""
 
         for c in self.active_containers():
             for n in c.nodes:
                 domain = n["domain"]
-                frontend_admin += f"""
+                backend_admin += f"""
     acl url_{domain} hdr(host) -i -m beg {domain}
-    use_backend satellite_clusters_admin_{domain} if url_{domain}
+    use-server satellite_clusters_admin_{domain} 127.0.0.1:{n["admin_port"]}
                 """
 
-                frontend_api += f"""
+                backend_api += f"""
     acl url_{domain} hdr(host) -i -m beg {domain}
-    use_backend satellite_clusters_api_{domain} if url_{domain}
+    use-server satellite_clusters_api_{domain} 127.0.0.1:{n["api_port"]}
                 """
 
-                conf_backends += [
-                    f"""
-backend satellite_clusters_admin_{domain}
-    server satellite_clusters_admin_{domain} 127.0.0.1:{n["admin_port"]}
-
-backend satellite_clusters_api_{domain}
-    server satellite_clusters_api_{domain} 127.0.0.1:{n["api_port"]}
-                """
-                ]
-
-        conf_frontends += [frontend_admin, frontend_api]
+        conf_backends += [backend_admin, backend_api]
 
         conf = f"""
-{os.linesep.join(conf_frontends)}
-
 {os.linesep.join(conf_backends)}
 """
 

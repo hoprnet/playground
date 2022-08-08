@@ -40,7 +40,7 @@ frontend stats
 	stats uri /stats
 	stats refresh 10s
 
-frontend satellite-http
+frontend satellite_http
 	bind 127.0.0.1:80
 	bind ::1:80
 	mode http
@@ -49,10 +49,8 @@ frontend satellite-http
 	redirect scheme https if url_satellite !{ ssl_fc } !is_httpchallenge
 	use_backend nginx if is_httpchallenge url_satellite
 
-frontend https
-	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
-	mode http
-	acl url_satellite hdr(host) -i {{ satellite_domain }}
+frontend satellite_https
+	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
@@ -60,13 +58,32 @@ frontend https
 	http-response add-header Access-Control-Allow-Credentials 'true'
 	http-response add-header Access-Control-Expose-Headers 'Authorization'
 
+	acl url_satellite hdr(host) -i {{ satellite_domain }}
 	use_backend satellite if url_satellite
-	default_backend satellite_cluster
 
-backend private_monitoring
-	stats enable
-	stats uri /admin?stats
-	stats refresh 5s
+frontend satellite_clusters_admin
+	bind :3000 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+
+	# handle CORS
+	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
+	http-response lua.cors
+	http-response add-header Access-Control-Allow-Credentials 'true'
+	http-response add-header Access-Control-Expose-Headers 'Authorization'
+
+	acl url_satellite hdr(host) -i -m sub {{ satellite_clusters_domain }}
+	use_backend satellite_clusters_admin if url_satellite
+
+frontend satellite_clusters_api
+	bind :3001 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+
+	# handle CORS
+	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
+	http-response lua.cors
+	http-response add-header Access-Control-Allow-Credentials 'true'
+	http-response add-header Access-Control-Expose-Headers 'Authorization'
+
+	acl url_satellite hdr(host) -i -m sub .{{ satellite_clusters_domain }}
+	use_backend satellite_clusters_api if url_satellite
 
 backend nginx
 	server nginx 127.0.0.1:8080
