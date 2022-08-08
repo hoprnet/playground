@@ -135,6 +135,7 @@ RIVERS = [
     "godavari",
 ]
 
+ALL_NAME_PARTS = [*RIVERS, *COLORS, *MOONS]
 
 def generate_container_name():
     data = [COLORS, MOONS, RIVERS]
@@ -156,6 +157,17 @@ def generate_container_names(count):
 def generate_container_base_ports(count):
     return [args.pluto_container_base_port + (p * 10) for p in range(0, count)]
 
+
+def docker_remove_container(name):
+    print("deleting container {}".format(name))
+    cmd = ["docker", "rm", "-f", name]
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode > 0:
+        print(
+            "deletion of container {} failed with exit code {}: {}".format(
+                name, result.returncode, result.stderr
+            )
+        )
 
 class Container:
     def __init__(self, name, base_port, started_at=None):
@@ -206,11 +218,11 @@ class Container:
             *self.port_mappings,
             args.pluto_image,
         ]
-        result = subprocess.run(cmd)
+        result = subprocess.run(cmd, capture_output=True)
         if result.returncode > 0:
             print(
-                "creation of container {} failed with exit code {}".format(
-                    self.name, result.returncode
+                "creation of container {} failed with exit code {}: {}".format(
+                    self.name, result.returncode, result.stderr
                 )
             )
             return False
@@ -218,16 +230,7 @@ class Container:
         return True
 
     def delete(self):
-        print("deleting container {}".format(self.name))
-        cmd = ["docker", "rm", "-f", self.name]
-        result = subprocess.run(cmd)
-        if result.returncode > 0:
-            print(
-                "deletion of container {} failed with exit code {}".format(
-                    self.name, result.returncode
-                )
-            )
-
+        docker_remove_container(self.name)
 
 class State:
     def __init__(self, containers=[]):
@@ -241,6 +244,29 @@ class State:
             args.pluto_container_count * 3
         )
 
+    # remove containers which are not managed by this state
+    def purge_zombie_containers(self):
+        result = subprocess.run(["docker", "ps", "--format", "{{.Names}}"],
+                                capture_output=True)
+        if result.returncode > 0:
+            print(
+                "execution of docker container list failed with exit code {}: {}".format(
+                    result.returncode, result.stderr
+                )
+            )
+            return
+        names = result.stdout.split()
+        for n in names:
+            name = str(n, 'UTF-8')
+            containers = [c for c in self.containers if c.name == name]
+            if (len(containers) == 1):
+                # we know the container, can skip
+                continue
+            name_parts = name.split('_')
+            if all([(p in ALL_NAME_PARTS) for p in name_parts]):
+                # the name could have been used by a previous server, so purge
+                docker_remove_container(name)
+
     def get_name(self):
         name = self.available_container_names.pop()
         return name
@@ -251,6 +277,7 @@ class State:
 
     def sync_containers(self):
         print("sync containers")
+        self.purge_zombie_containers()
         # delete old containers
         for c in self.old_containers():
             self.delete_container(c)
@@ -300,8 +327,7 @@ class State:
             f.write(conf)
 
         if args.post_haproxy_config_cmd:
-            subprocess
-            result = subprocess.run(args.post_haproxy_config_cmd, shell=True)
+            result = subprocess.run(args.post_haproxy_config_cmd, shell=True, capture_output=True)
             if result.returncode > 0:
                 print(
                     "execution of post_haproxy_config_cmd failed with exit code {}: {}".format(
