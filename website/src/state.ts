@@ -15,7 +15,7 @@ export type State = {
     secondsUntilRelease: number; // seconds
   };
   cluster: {
-    name: string,
+    name?: string,
     secondsRemaining: number; // seconds
     apps: {
       [app: string]: string[];

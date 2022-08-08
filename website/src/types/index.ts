@@ -30,8 +30,10 @@ export type App = {
     icon?: string;
     nodes?: string[];
     author?: string;
-    links?: string[];
-}
+    links?: Links;
+};
+
+export type Links = string[] | undefined;
 
 export type Apps = App[];
 

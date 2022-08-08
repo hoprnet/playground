@@ -87,7 +87,7 @@ const Index: NextPage = () => {
 
     let parsedApps = [];
     for (let i = 0; i < apps.length; i++) {
-      let icon = placeholderMacIcons[i].icon;
+      let icon: string | undefined = placeholderMacIcons[i].icon;
       if (apps[i].icon) icon = apps[i].icon;
       parsedApps.push(
           {

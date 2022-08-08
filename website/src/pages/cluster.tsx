@@ -10,8 +10,7 @@ import Section from "../future-hopr-lib-components/Section"
 import Dock from "../future-hopr-lib-components/Dock"
 
 //Types
-import { Apps, Clusters, ClustersAvailability } from '../types'
-import type { State } from "../state";
+import { App, Apps, Clusters, ClustersAvailability, Links } from '../types'
 
 const Cluster = (props: {
   clustersAvailability: ClustersAvailability
@@ -26,6 +25,7 @@ const Cluster = (props: {
     const interval = setInterval(() => {
       const leftSeconds = props.clustersValidUntil - Date.now()/1000;
       if(leftSeconds < 0) {
+        // @ts-ignore
         Router.reload(window.location.pathname);
       } else {
         set_timeRemaining(secondsToTime(Math.floor(leftSeconds)));
@@ -34,7 +34,7 @@ const Cluster = (props: {
     return () => clearInterval(interval);
   }, []);
 
-  const links = selection !== -1 ? props.apps[selection].links : [];
+  const links: Links = selection !== -1 ? props.apps[selection].links : [];
 
   return (
     <Section
@@ -74,7 +74,7 @@ const Cluster = (props: {
           for all available commands.
         </div>
         <div className={`bottomGap topGap ${styles.links}`}>
-          {links.map((link, index) => (
+          {links?.map((link, index) => (
             <LinkHolder key={link} nodeNumber={index} link={link} />
           ))}
         </div>
