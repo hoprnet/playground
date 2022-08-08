@@ -12,6 +12,7 @@ import threading
 import argparse
 import subprocess
 import random
+import string
 
 parser = argparse.ArgumentParser(
     description="starts a server which manages Pluto docker containers on the local host and exposes some management functions via an HTTP API",
@@ -137,6 +138,7 @@ RIVERS = [
 
 ALL_NAME_PARTS = [*RIVERS, *COLORS, *MOONS]
 
+
 def generate_container_name():
     data = [COLORS, MOONS, RIVERS]
     random.shuffle(data)
@@ -169,33 +171,79 @@ def docker_remove_container(name):
             )
         )
 
+
+def num_to_word(i):
+    if i == 0:
+        return "zero"
+    elif i == 1:
+        return "one"
+    elif i == 2:
+        return "two"
+    elif i == 3:
+        return "three"
+    elif i == 4:
+        return "four"
+    elif i == 5:
+        return "five"
+    elif i == 6:
+        return "six"
+    elif i == 7:
+        return "seven"
+    elif i == 8:
+        return "eight"
+    elif i == 9:
+        return "nine"
+
+
+def generate_api_token():
+    return "".join(random.choice(string.ascii_lowercase) for i in range(24))
+
+
+PUBLIC_ADMIN_PORT = 3000
+PUBLIC_API_PORT = 3001
+
+
 class Container:
     def __init__(self, name, base_port, started_at=None):
         self.name = name
         self.started_at = started_at
         self.state = "created"
+        self.api_token = generate_api_token()
         # the container requires 10 ports (2 per hoprd node)
         self.base_port = base_port
         self.api_ports = [base_port + i for i in range(5)]
         self.admin_ports = [base_port + i for i in range(5, 10)]
+        docker_api_port = [13301 + i for i in range(5)]
+        docker_admin_port = [19501 + i for i in range(5)]
         # host port to container port
-        self.port_mappings = [
-            # API ports
-            "-p",
-            "{}-{}:13301-13305".format(base_port + 0, base_port + 4),
-            # Admin UI ports
-            "-p",
-            "{}-{}:19091-19095".format(base_port + 5, base_port + 9),
-        ]
+        self.port_mappings = []
+        for i in range(5):
+            self.port_mappings += [
+                "-p",
+                f"127.0.0.1:{self.api_ports[i]}:{docker_api_port[i]}",
+            ]
+            self.port_mappings += [
+                "-p",
+                f"127.0.0.1:{self.admin_ports[i]}:{docker_admin_port[i]}",
+            ]
         nodes = []
         for i in range(5):
             admin_port = self.admin_ports[i]
             api_port = self.api_ports[i]
-            api_url = (
-                f"{args.target_protocol}://{self.name}.{args.target_domain}:{api_port}"
+            domain = f"{num_to_word(i)}.{self.name}.{args.target_domain}"
+            api_url = f"{args.target_protocol}://{domain}:{PUBLIC_API_PORT}"
+            admin_url = f"{args.target_protocol}://{domain}:{PUBLIC_ADMIN_PORT}"
+            # TODO: make this token configurable
+            nodes.append(
+                {
+                    "api_token": self.api_token,
+                    "api_url": api_url,
+                    "admin_url": admin_url,
+                    "domain": domain,
+                    "api_port": api_port,
+                    "admin_port": admin_port,
+                }
             )
-            admin_url = f"{args.target_protocol}://{self.name}.{args.target_domain}:{admin_port}"
-            nodes.append({"api_url": api_url, "admin_url": admin_url})
         self.nodes = nodes
 
     def activate(self):
@@ -210,6 +258,8 @@ class Container:
             "run",
             "--pull",
             "always",
+            "-e",
+            "HOPRD_API_TOKEN",
             "-d",
             "-it",
             "--rm",
@@ -218,7 +268,9 @@ class Container:
             *self.port_mappings,
             args.pluto_image,
         ]
-        result = subprocess.run(cmd, capture_output=True)
+        custom_env = os.environ.copy()
+        custom_env["HOPRD_API_TOKEN"] = self.api_token
+        result = subprocess.run(cmd, capture_output=True, env=custom_env)
         if result.returncode > 0:
             print(
                 "creation of container {} failed with exit code {}: {}".format(
@@ -231,6 +283,7 @@ class Container:
 
     def delete(self):
         docker_remove_container(self.name)
+
 
 class State:
     def __init__(self, containers=[]):
@@ -247,8 +300,9 @@ class State:
 
     # remove containers which are not managed by this state
     def purge_zombie_containers(self):
-        result = subprocess.run(["docker", "ps", "--format", "{{.Names}}"],
-                                capture_output=True)
+        result = subprocess.run(
+            ["docker", "ps", "--format", "{{.Names}}"], capture_output=True
+        )
         if result.returncode > 0:
             print(
                 "execution of docker container list failed with exit code {}: {}".format(
@@ -258,12 +312,12 @@ class State:
             return
         names = result.stdout.split()
         for n in names:
-            name = str(n, 'UTF-8')
+            name = str(n, "UTF-8")
             containers = [c for c in self.containers if c.name == name]
-            if (len(containers) == 1):
+            if len(containers) == 1:
                 # we know the container, can skip
                 continue
-            name_parts = name.split('_')
+            name_parts = name.split("_")
             if all([(p in ALL_NAME_PARTS) for p in name_parts]):
                 # the name could have been used by a previous server, so purge
                 docker_remove_container(name)
@@ -295,49 +349,48 @@ class State:
 
     def write_haproxy_configuration(self):
         conf_acls = []
-        conf_frontends = []
         conf_backends = []
+        conf_frontends = []
+
+        frontend_api = f"""
+frontend satellite_clusters_api
+    bind 127.0.0.1:{PUBLIC_API_PORT}
+    bind ::1:{PUBLIC_API_PORT}
+        """
+
+        frontend_admin = f"""
+frontend satellite_clusters_admin
+    bind 127.0.0.1:{PUBLIC_ADMIN_PORT}
+    bind ::1:{PUBLIC_ADMIN_PORT}
+        """
+        if args.target_protocol == "https":
+            # TODO: fix for SSL in deployed setting
+            frontend_admin = ""
 
         for c in self.active_containers():
-            frontend = ""
-            ports = [*c.admin_ports, *c.api_ports]
-
-            if args.target_protocol == 'https':
-                frontend += f"""
-frontend satellite_cluster_{c.name}
-                """
-            else:
-                binds = [f"127.0.0.1:{p}" for p in ports]
-                binds += [f"::1:{p}" for p in ports]
-                frontend += f"""
-frontend satellite_cluster_{c.name}
-	bind {','.join(binds)}
-    acl url_{c.name} hdr(host) -i -m beg {c.name}.{args.target_domain}
+            for n in c.nodes:
+                domain = n["domain"]
+                frontend_admin += f"""
+    acl url_{domain} hdr(host) -i -m beg {domain}
+    use_backend satellite_clusters_admin_{domain} if url_{domain}
                 """
 
-            for port in c.admin_ports:
-                frontend += f"""
-    acl port_{c.name}_admin_{port} hdr(port) -i {port}
-    use_backend satellite_cluster_{c.name}_admin_{port} if url_{c.name}
-    port_{c.name}_admin_{port}
+                frontend_api += f"""
+    acl url_{domain} hdr(host) -i -m beg {domain}
+    use_backend satellite_clusters_api_{domain} if url_{domain}
                 """
-                conf_backends += [f"""
-backend satellite_cluster_{c.name}_admin_{port}
-    server satellite_cluster_{c.name}_admin_{port} 127.0.0.1:{port}
-                """]
 
-            for port in c.api_ports:
-                frontend += f"""
-    acl port_{c.name}_api_{port} hdr(port) -i {port}
-    use_backend satellite_cluster_{c.name}_api_{port} if url_{c.name}
-    port_{c.name}_api_{port}
+                conf_backends += [
+                    f"""
+backend satellite_clusters_admin_{domain}
+    server satellite_clusters_admin_{domain} 127.0.0.1:{n["admin_port"]}
+
+backend satellite_clusters_api_{domain}
+    server satellite_clusters_api_{domain} 127.0.0.1:{n["api_port"]}
                 """
-                conf_backends += [f"""
-backend satellite_cluster_{c.name}_api_{port}
-    server satellite_cluster_{c.name}_api_{port} 127.0.0.1:{port}
-                """]
+                ]
 
-            conf_frontends.append(frontend)
+        conf_frontends += [frontend_admin, frontend_api]
 
         conf = f"""
 {os.linesep.join(conf_frontends)}
@@ -350,7 +403,9 @@ backend satellite_cluster_{c.name}_api_{port}
             f.write("")
 
         if args.post_haproxy_config_cmd and self.last_haproxy_conf != conf:
-            result = subprocess.run(args.post_haproxy_config_cmd, shell=True, capture_output=True)
+            result = subprocess.run(
+                args.post_haproxy_config_cmd, shell=True, capture_output=True
+            )
             if result.returncode > 0:
                 print(
                     "execution of post_haproxy_config_cmd failed with exit code {}: {}".format(
@@ -447,7 +502,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         free_count = len(state.free_containers())
         msg = {
             "total_clusters_count": len(state.containers),
-            "free_clusters_count": free_count
+            "free_clusters_count": free_count,
         }
         self.wfile.write(json.dumps(msg).encode())
 
@@ -455,10 +510,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         msg = {}
         container = state.activate_container()
         if container:
+            nodes = [
+                {
+                    "api_url": n["api_url"],
+                    "admin_url": n["admin_url"],
+                    "api_token": n["api_token"],
+                }
+                for n in container.nodes
+            ]
             msg = {
                 "cluster_name": container.name,
                 "cluster_valid_until": container.finished_at,
-                "cluster_nodes": container.nodes,
+                "cluster_nodes": nodes,
             }
         else:
             msg = {"error": "no cluster available"}

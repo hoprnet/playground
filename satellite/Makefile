@@ -27,7 +27,7 @@ start-haproxy: ## start local haproxy instance
 
 .PHONY: start-website
 start-website: ## start local website instance
-	cd ../website; yarn; NEXT_PUBLIC_API_ENDPOINT="http://localhost:8997" yarn dev
+	cd ../website; yarn; NEXT_PUBLIC_API_ENDPOINT="http://localhost:8997" yarn run next dev -p 3003
 
 .PHONY: test
 test: ## run integration test
