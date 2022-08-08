@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import Router from 'next/router'
 import styles from "../../styles/pages/cluster.module.scss";
 import { secondsToTime } from "../utils";
 
@@ -15,14 +16,23 @@ import type { State } from "../state";
 const Cluster = (props: {
   clustersAvailability: ClustersAvailability
   apps: Apps,
-  clusters: Clusters
+  clusters: Clusters,
+  clustersValidUntil: number,
 }) => {
-  const [selection, setSelection] = useState<number>(-1);
-  // time remaining until release - computed via secondsRemaining
-  // used a memo here incase we introduce a countdown later
-  const timeRemaining: string = useMemo(() => {
-    return secondsToTime(props.clustersAvailability.secondsUntilRelease);
-  }, [props.clustersAvailability.secondsUntilRelease]);
+  const [selection, set_selection] = useState<number>(-1);
+  const [timeRemaining, set_timeRemaining] = useState<string>('20:00');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const leftSeconds = props.clustersValidUntil - Date.now()/1000;
+      if(leftSeconds < 0) {
+        Router.reload(window.location.pathname);
+      } else {
+        set_timeRemaining(secondsToTime(Math.floor(leftSeconds)));
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const links = selection !== -1 ? props.apps[selection].links : [];
 
@@ -47,7 +57,7 @@ const Cluster = (props: {
       {/* show apps */}
       <Dock
         apps={props.apps}
-        iconClicked={setSelection}
+        iconClicked={set_selection}
       />
 
       <div className={`container section topGap ${styles.linksContainer}`}>

@@ -20,11 +20,12 @@ import {Clusters, ClustersAvailability, Apps} from '../src/types'
 const Index: NextPage = () => {
   const [clusterOn, set_clusterOn] = useState<boolean>(false);
   const [clusters, set_clusters] = useState<Clusters>([]);
+  const [clustersValidUntil, set_clustersValidUntil] = useState<number>(0);
   const [clustersAvailability, set_clustersAvailability] = useState<ClustersAvailability>({
       total: 0,
       used: 0,
       available: 0,
-    //  available: 1, //dev
+   //  available: 1, //dev
       secondsUntilRelease: 0,
   });
   const urlParams = !isSSR ? getUrlParams(location) : {};
@@ -65,6 +66,7 @@ const Index: NextPage = () => {
           console.log(`/activate Resp:`, data);
           set_clusterOn(true);
           set_clusters(data.cluster_nodes);
+          set_clustersValidUntil(data.cluster_valid_until);
         })
         .catch(err => {
           console.error(`API call failed with ${err}`)
@@ -113,6 +115,7 @@ const Index: NextPage = () => {
             clustersAvailability={clustersAvailability}
             clusters={clusters}
             apps={parseApps(dapps, clusters)}
+            clustersValidUntil={clustersValidUntil}
         />
       )}
     </Layout>
