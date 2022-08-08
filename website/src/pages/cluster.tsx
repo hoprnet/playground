@@ -9,7 +9,14 @@ import { secondsToTime } from "../utils";
 import Section from "../future-hopr-lib-components/Section"
 import Dock from "../future-hopr-lib-components/Dock"
 
-const Cluster = (props: { cluster: State["cluster"] }) => {
+//Types
+import { Apps, Clusters } from '../types'
+
+const Cluster = (props: {
+  cluster: State["cluster"],
+  apps: Apps,
+  clusters: Clusters
+}) => {
   const [selection, setSelection] = useState<string>();
   // time remaining until release - computed via secondsRemaining
   // used a memo here incase we introduce a countdown later
@@ -20,6 +27,12 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
   const apps = Object.entries(props.cluster.apps);
   const links = selection ? props.cluster.apps[selection] : [];
   console.log(links);
+
+  const parseApps = (apps: Apps, clusters: Clusters) => {
+    console.log('parseApps', apps, clusters);
+
+    return {}
+  }
 
   return (
     <Section
@@ -41,24 +54,9 @@ const Cluster = (props: { cluster: State["cluster"] }) => {
 
       {/* show apps */}
       <Dock
-        apps={apps}
+        apps={parseApps(props.apps, props.clusters)}
         iconClicked={(index: number) => { setSelection(apps[index][0]) }}
       />
-      {/*<div className={`container section ${styles.apps}`}>*/}
-      {/*  {apps.map(([name]) => (*/}
-      {/*    <div*/}
-      {/*      key={name}*/}
-      {/*      onClick={() => {*/}
-      {/*        setSelection(name);*/}
-      {/*      }}*/}
-      {/*      className={`${styles.appBox} ${*/}
-      {/*        selection === name ? "selected" : ""*/}
-      {/*      }`}*/}
-      {/*    >*/}
-      {/*      {name}*/}
-      {/*    </div>*/}
-      {/*  ))}*/}
-      {/*</div>*/}
 
       <div className={`container section topGap ${styles.linksContainer}`}>
         <div>
