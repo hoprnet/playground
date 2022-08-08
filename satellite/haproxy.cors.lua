@@ -7,6 +7,8 @@
 -- Copyright (c) 2019. Nick Ramirez <nramirez@haproxy.com>
 -- Copyright (c) 2019. HAProxy Technologies, LLC.
 
+local M={}
+
 -- Loops through array to find the given string.
 -- items: array of strings
 -- test_str: string to search for
@@ -20,22 +22,91 @@ function contains(items, test_str)
   return false
 end
 
--- If the given origin is found within the allowed_origins string, it is returned. Otherwise, nil is returned.
--- origin: The value from the 'origin' request header
--- allowed_origins: Comma-delimited list of allowed origins. (e.g. localhost,localhost:8080,test.com)
-function get_allowed_origin(origin, allowed_origins)
-  if origin ~= nil then
-    local allowed_origins = core.tokenize(allowed_origins, ",")
+M.wildcard_origin_allowed = function(allowed_origins)
+  if contains(allowed_origins, "*") then
+    return "*"
+  end
+  return nil
+end
 
-    -- Strip whitespace
-    for index, value in ipairs(allowed_origins) do
-      allowed_origins[index] = value:gsub("%s+", "")
+M.specifies_scheme = function(s)
+  return string.find(s, "^%a+://") ~= nil
+end
+
+M.specifies_generic_scheme = function(s)
+  return string.find(s, "^//") ~= nil
+end
+
+M.begins_with_dot = function(s)
+  return string.find(s, "^%.") ~= nil
+end
+
+M.trim = function(s)
+  return s:gsub("%s+", "")
+end
+
+M.build_pattern = function(pattern)
+  -- remove spaces
+  pattern = M.trim(pattern)
+
+  if pattern ~= nil and pattern ~= '' then
+    -- if there is no scheme and the pattern does not begin with a dot, 
+    -- add the generic scheme to the beginning of the pattern
+    if M.specifies_scheme(pattern) == false and M.specifies_generic_scheme(pattern) == false and M.begins_with_dot(pattern) == false then
+      pattern = "//" .. pattern
     end
 
-    if contains(allowed_origins, "*") then
-      return "*"
-    elseif contains(allowed_origins, origin:match("//([^/]+)")) then
-      return origin
+    -- escape dots and dashes in pattern
+    pattern = pattern:gsub("([%.%-])", "%%%1")
+
+    -- an asterisk for the port means allow all ports
+    if string.find(pattern, "[:]+%*$") ~= nil then
+      pattern = pattern:gsub("[:]+%*$", "[:]+[0-9]+")
+    end
+
+    -- append end character
+    pattern = pattern .. "$"
+    return pattern
+  end
+
+  return nil
+end
+
+-- If the given origin is found within the allowed_origins string, it is returned. Otherwise, nil is returned.
+-- origin: The value from the 'origin' request header
+-- allowed_origins: Comma-delimited list of allowed origins. (e.g. localhost,https://localhost:8080,//test.com)
+--   e.g. localhost                : allow http(s)://localhost
+--   e.g. //localhost              : allow http(s)://localhost
+--   e.g. https://mydomain.com     : allow only HTTPS of mydomain.com
+--   e.g. http://mydomain.com      : allow only HTTP of mydomain.com
+--   e.g. http://mydomain.com:8080 : allow only HTTP of mydomain.com from port 8080
+--   e.g. //mydomain.com           : allow only http(s)://mydomain.com
+--   e.g. .mydomain.com            : allow ALL subdomains of mydomain.com from ALL source ports
+--   e.g. .mydomain.com:443        : allow ALL subdomains of mydomain.com from default HTTPS source port
+-- 
+--  e.g. ".mydomain.com:443, //mydomain.com:443, //localhost"
+--    allows all subdomains and main domain of mydomain.com only for HTTPS from default HTTPS port and allows 
+--    all HTTP and HTTPS connections from ALL source port for localhost
+--    
+M.get_allowed_origin = function(origin, allowed_origins)
+  if origin ~= nil then
+    -- if wildcard (*) is allowed, return it, which allows all origins
+    wildcard_origin = M.wildcard_origin_allowed(allowed_origins)
+    if wildcard_origin ~= nil then
+      return wildcard_origin
+    end
+
+    for index, allowed_origin in ipairs(allowed_origins) do
+      pattern = M.build_pattern(allowed_origin)
+
+      if pattern ~= nil then
+        if origin:match(pattern) then
+          core.Debug("Test: " .. pattern .. ", Origin: " .. origin .. ", Match: yes")
+          return origin
+        else
+          core.Debug("Test: " .. pattern .. ", Origin: " .. origin .. ", Match: no")
+        end
+      end
     end
   end
 
@@ -75,7 +146,7 @@ function preflight_request_ver2(txn, origin, allowed_methods, allowed_origins, a
   reply:add_header("Access-Control-Allow-Headers", allowed_headers)
   reply:add_header("Access-Control-Max-Age", 600)
 
-  local allowed_origin = get_allowed_origin(origin, allowed_origins)
+  local allowed_origin = M.get_allowed_origin(origin, allowed_origins)
 
   if allowed_origin == nil then
     core.Debug("CORS: " .. origin .. " not allowed")
@@ -103,6 +174,7 @@ function cors_request(txn, allowed_methods, allowed_origins, allowed_headers)
   local headers = txn.http:req_get_headers()
   local transaction_data = {}
   local origin = nil
+  local allowed_origins = core.tokenize(allowed_origins, ",")
   
   if headers["origin"] ~= nil and headers["origin"][0] ~= nil then
     core.Debug("CORS: Got 'Origin' header: " .. headers["origin"][0])
@@ -150,7 +222,7 @@ function cors_response(txn)
     return
   end
 
-  local allowed_origin = get_allowed_origin(origin, allowed_origins)
+  local allowed_origin = M.get_allowed_origin(origin, allowed_origins)
 
   if allowed_origin == nil then
     core.Debug("CORS: " .. origin .. " not allowed")
@@ -171,3 +243,5 @@ end
 -- Register the actions with HAProxy
 core.register_action("cors", {"http-req"}, cors_request, 3)
 core.register_action("cors", {"http-res"}, cors_response, 0)
+
+return M
