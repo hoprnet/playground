@@ -39,7 +39,11 @@ const Index: NextPage = () => {
         return () => clearInterval(interval);
     }, []);
 
-  const getClusterAvailability = () => {
+    useEffect(( ) => {
+        getPeerIds(clusters)
+    }, [clusters]);
+
+    const getClusterAvailability = () => {
       const api_url_clusters = `${api_url}/api/clusters`;
       const req = new Request(api_url_clusters);
       fetch(req)
@@ -80,6 +84,26 @@ const Index: NextPage = () => {
     // set_clusterOn(true);
     // set_clusters(placeholderResponse.cluster_nodes);
   };
+
+    const getPeerIds = async (clusters: Clusters) => {
+        console.log('getPeerIds', clusters);
+        let peerIds = [];
+        for (let i = 0; i < clusters.length; i++){
+            const req = new Request(`${clusters[i].api_url}/api/v2/account/addresses`);
+            fetch(req, { method: 'GET'})
+                .then(response => response.json())
+                .then(data => {
+                    console.log(`/addresses Resp:`, data);
+                })
+                .catch(err => {
+                    console.error(`API call failed with ${err}`)
+                });
+        }
+
+
+
+
+    };
 
   const parseApps = (apps: Apps, clusters: Clusters) => {
     console.log('parseApps', apps, clusters);

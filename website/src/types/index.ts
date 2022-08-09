@@ -18,7 +18,7 @@ export type State = {
 export type Cluster = {
     api_url: string,
     admin_url: string,
-    api_token: string
+    api_token: string,
 }
 
 export type Clusters = Cluster[];
