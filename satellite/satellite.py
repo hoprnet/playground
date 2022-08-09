@@ -196,7 +196,13 @@ def num_to_word(i):
 
 
 def generate_api_token():
-    return "".join(random.choice(string.ascii_lowercase) for i in range(24))
+    letters = string.hexdigits + "%"
+    size = 24
+    token = "".join(random.choice(letters) for i in range(size))
+    # ensure one special sign is present
+    if "%" in token:
+        return token
+    return token + "%"
 
 
 PUBLIC_ADMIN_PORT = 3000
@@ -320,6 +326,7 @@ class State:
             name_parts = name.split("_")
             if all([(p in ALL_NAME_PARTS) for p in name_parts]):
                 # the name could have been used by a previous server, so purge
+                print(f"purging zombie container {name}")
                 docker_remove_container(name)
 
     def get_name(self):
@@ -335,6 +342,7 @@ class State:
         self.purge_zombie_containers()
         # delete old containers
         for c in self.old_containers():
+            print(f"deleting old container {c.name}")
             self.delete_container(c)
         # start new containers
         for i in range(len(self.containers), args.pluto_container_count):
@@ -360,15 +368,26 @@ backend satellite_clusters_api
         for c in self.active_containers():
             for n in c.nodes:
                 domain = n["domain"]
+
                 backend_admin += f"""
     acl url_{domain} hdr(host) -i -m beg {domain}
-    use-server satellite_clusters_admin_{domain} 127.0.0.1:{n["admin_port"]}
+    use-server satellite_clusters_admin_{domain} if url_{domain}
+    server satellite_clusters_admin_{domain} 127.0.0.1:{n["admin_port"]} weight 0
                 """
 
                 backend_api += f"""
     acl url_{domain} hdr(host) -i -m beg {domain}
-    use-server satellite_clusters_api_{domain} 127.0.0.1:{n["api_port"]}
+    use-server satellite_clusters_api_{domain} if url_{domain}
+    server satellite_clusters_api_{domain} 127.0.0.1:{n["api_port"]} weight 0
                 """
+
+        backend_admin += f"""
+    server nginx_fallback 127.0.0.1:8080 check
+        """
+
+        backend_api += f"""
+    server nginx_fallback 127.0.0.1:8080 check
+        """
 
         conf_backends += [backend_admin, backend_api]
 
@@ -427,7 +446,7 @@ backend satellite_clusters_api
         # delete in Docker
         container.delete()
         # remove from state
-        self.containers = [c for c in self.containers if c.name == container.name]
+        self.containers = [c for c in self.containers if c.name != container.name]
         # enable name for re-use
         self.available_container_names.insert(0, container.name)
         # enable base port for re-use

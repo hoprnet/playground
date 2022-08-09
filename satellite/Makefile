@@ -22,7 +22,8 @@ start-satellite: ## start local server instance
 .PHONY: start-haproxy
 start-haproxy: ## start local haproxy instance
 	# ensure custom configration file is available when haproxy starts up
-	echo "backend satellite_cluster" > "$(haproxy_conf)"
+	echo "backend satellite_clusters_admin" > "$(haproxy_conf)"
+	echo "backend satellite_clusters_api" >> "$(haproxy_conf)"
 	haproxy -W -f haproxy.conf -f "$(haproxy_conf)"
 
 .PHONY: start-website
