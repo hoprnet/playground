@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { isSSR, getUrlParams, secondsToTime } from "../src/utils";
-import Router from 'next/router';
 
 // Components
 import Layout from '../src/future-hopr-lib-components/Layout'
@@ -19,8 +18,6 @@ import {Clusters, ClustersAvailability, Apps} from '../src/types'
 
 
 const Index: NextPage = () => {
-  if(process.env.NEXT_PUBLIC_REDIRECT === '1') { Router.push('https://hoprnet.org/')}
-
   const [clusterOn, set_clusterOn] = useState<boolean>(false);
   const [clusters, set_clusters] = useState<Clusters>([]);
   const [peerIds, set_peerIds] = useState<string[]>([]);
@@ -36,6 +33,7 @@ const Index: NextPage = () => {
   const api_url = urlParams.api || NEXT_PUBLIC_API_ENDPOINT || "";
 
     useEffect(() => {
+        if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location = 'https://hoprnet.org/')}
         getClusterAvailability();
         const interval = setInterval(() => {
             getClusterAvailability();
