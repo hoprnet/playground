@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { isSSR, getUrlParams, secondsToTime } from "../src/utils";
+import Router from 'next/router';
 
 // Components
 import Layout from '../src/future-hopr-lib-components/Layout'
@@ -18,8 +19,11 @@ import {Clusters, ClustersAvailability, Apps} from '../src/types'
 
 
 const Index: NextPage = () => {
+  if(process.env.NEXT_PUBLIC_REDIRECT === '1') { Router.push('https://hoprnet.org/')}
+
   const [clusterOn, set_clusterOn] = useState<boolean>(false);
   const [clusters, set_clusters] = useState<Clusters>([]);
+  const [peerIds, set_peerIds] = useState<string[]>([]);
   const [clustersValidUntil, set_clustersValidUntil] = useState<number>(0);
   const [clustersAvailability, set_clustersAvailability] = useState<ClustersAvailability>({
       total: 0,
@@ -86,27 +90,38 @@ const Index: NextPage = () => {
   };
 
     const getPeerIds = async (clusters: Clusters) => {
-        console.log('getPeerIds', clusters);
-        let peerIds = [];
-        for (let i = 0; i < clusters.length; i++){
-            const req = new Request(`${clusters[i].api_url}/api/v2/account/addresses`);
-            fetch(req, { method: 'GET'})
-                .then(response => response.json())
-                .then(data => {
-                    console.log(`/addresses Resp:`, data);
-                })
-                .catch(err => {
-                    console.error(`API call failed with ${err}`)
-                });
-        }
 
+        setTimeout(()=>{
+            let peerIds:string[] = [];
+            for (let i = 0; i < clusters.length; i++) {
+                //  for (let i = 0; i < 2; i++){
+                console.log('clusters', clusters);
+                //       const req = new Request();
+                fetch(`${clusters[i].api_url}/api/v2/account/addresses`, {
+                    "method": 'GET',
+                    "headers": {
+                        "accept": "*/*",
+                        "authorization": `Basic ${btoa(clusters[i].api_token)}`,
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        peerIds.push(data.hoprAddress);
+                    })
+                    .catch(err => {
+                        console.error(`API call failed with ${err}`)
+                    });
+            }
+            console.log('peerIds', peerIds);
+            set_peerIds(peerIds);
+        }, 3000)
 
 
 
     };
 
   const parseApps = (apps: Apps, clusters: Clusters) => {
-    console.log('parseApps', apps, clusters);
+  //  console.log('parseApps', apps, clusters);
 
     let nodeUrlParams = [];
     for (let i = 0; i < clusters.length; i++) {
@@ -127,7 +142,7 @@ const Index: NextPage = () => {
       )
     }
 
-    console.log('parsedApps', parsedApps);
+  //  console.log('parsedApps', parsedApps);
     return parsedApps;
   }
 
@@ -144,6 +159,7 @@ const Index: NextPage = () => {
             clusters={clusters}
             apps={parseApps(dapps, clusters)}
             clustersValidUntil={clustersValidUntil}
+            peerIds={peerIds}
         />
       )}
     </Layout>

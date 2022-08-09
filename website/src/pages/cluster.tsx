@@ -17,6 +17,7 @@ const Cluster = (props: {
   apps: Apps,
   clusters: Clusters,
   clustersValidUntil: number,
+  peerIds: string[]
 }) => {
   const [selection, set_selection] = useState<number>(-1);
   const [timeRemaining, set_timeRemaining] = useState<string>('20:00');
@@ -77,10 +78,18 @@ const Cluster = (props: {
           for all available commands.
         </div>
         <div className={`bottomGap topGap ${styles.links}`}>
-          {links?.map((link, index) => (
-            <LinkHolder key={link} nodeNumber={index} link={link} />
+          {props.peerIds?.map((link, index) => (
+              <LinkHolder key={link} nodeNumber={index} link={link} />
           ))}
         </div>
+        {/*{*/}
+        {/*  props.peerIds?.length > 0 && 'Peer IDs:'*/}
+        {/*}*/}
+        {/*<div className={`bottomGap topGap ${styles.links}`}>*/}
+        {/*  {props.peerIds?.map((link, index) => (*/}
+        {/*      <LinkHolder key={link} nodeNumber={index} link={link} />*/}
+        {/*  ))}*/}
+        {/*</div>*/}
       </div>
     </Section>
   );
