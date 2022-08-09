@@ -61,6 +61,9 @@ const Cluster = (props: {
       />
 
       <div className={`container section topGap ${styles.linksContainer}`}>
+        <div className={`${styles.appTitle}`}>
+          {selection !== -1 ? props.apps[selection].name : ''}
+        </div>
         <div>
           The HOPR network is a decentralized incentivized mixnet, ensuring
           complete data and metadata privacy for everyone who uses it. Data is
