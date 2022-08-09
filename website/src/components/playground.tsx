@@ -1,32 +1,28 @@
-import { useEffect } from "react";
-import Image from "next/image";
+import React, { useEffect, useRef } from "react";
+import styled from "@emotion/styled";
 import lottie from "lottie-web";
-import terminalRobotAnimation from "../animation/anim_robot_terminal.json";
 import styles from "../../styles/components/playground.module.scss";
+import playgroundAnimation from '../animation/playground.json'
+
+const Animation = styled.div`
+`
 
 const Playground = () => {
-  // nextjs remounts page on first load to properly hydrate it
-  // this flag is to prevent loading animation twice
-  let animationLoaded = false;
+  const animationLoaded = useRef(false);
+
   useEffect(() => {
-    // check to prevent double animation load on page remount
-    if (!animationLoaded) {
+    if (!animationLoaded.current) {
       lottie.loadAnimation({
-        container: document.querySelector("#terminalRobotAnimation")!,
-        animationData: terminalRobotAnimation,
+        container: document.querySelector(`#hero-animation`),
+        animationData: playgroundAnimation,
       });
     }
-    animationLoaded = true;
+    animationLoaded.current = true;
   }, []);
 
   return (
     <div className={styles.yellowCircle}>
-      <Image
-        src="/hopr-playground.svg"
-        width={250}
-        height={250}
-        className={styles.playgroundSvg}
-      />
+      <Animation id='hero-animation' />
     </div>
   );
 };
