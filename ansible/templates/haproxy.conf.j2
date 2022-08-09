@@ -53,7 +53,7 @@ frontend satellite_https
 	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem
 
 	# handle CORS
-	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
+	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
 	http-response lua.cors
 	http-response add-header Access-Control-Allow-Credentials 'true'
 	http-response add-header Access-Control-Expose-Headers 'Authorization'
@@ -65,7 +65,7 @@ frontend satellite_clusters_admin
 	bind :3000 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 
 	# handle CORS
-	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
+	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
 	http-response lua.cors
 	http-response add-header Access-Control-Allow-Credentials 'true'
 	http-response add-header Access-Control-Expose-Headers 'Authorization'
@@ -77,7 +77,7 @@ frontend satellite_clusters_api
 	bind :3001 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 
 	# handle CORS
-	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With"
+	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
 	http-response lua.cors
 	http-response add-header Access-Control-Allow-Credentials 'true'
 	http-response add-header Access-Control-Expose-Headers 'Authorization'

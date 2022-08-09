@@ -196,13 +196,13 @@ def num_to_word(i):
 
 
 def generate_api_token():
-    letters = string.hexdigits + "%"
+    letters = string.hexdigits + "#"
     size = 24
     token = "".join(random.choice(letters) for i in range(size))
     # ensure one special sign is present
-    if "%" in token:
+    if "#" in token:
         return token
-    return token + "%"
+    return token + "#"
 
 
 PUBLIC_ADMIN_PORT = 3000
