@@ -236,7 +236,7 @@ class Container:
         for i in range(5):
             admin_port = self.admin_ports[i]
             api_port = self.api_ports[i]
-            domain = f"{num_to_word(i)}.{self.name}.{args.target_domain}"
+            domain = f"{num_to_word(i)}_{self.name}.{args.target_domain}"
             api_url = f"{args.target_protocol}://{domain}:{PUBLIC_API_PORT}"
             admin_url = f"{args.target_protocol}://{domain}:{PUBLIC_ADMIN_PORT}"
             # TODO: make this token configurable

@@ -1,18 +1,17 @@
-
 global
-  log /dev/log  local0
-  log /dev/log  local1 notice
+	log /dev/log  local0
+	log /dev/log  local1 notice
 	chroot /var/lib/haproxy
-  stats socket /run/haproxy/admin.stats mode 660 level admin expose-fd listeners
+	stats socket /run/haproxy/admin.stats mode 660 level admin expose-fd listeners
 	stats timeout 30s
-  user haproxy
-  group haproxy
-  daemon
+	user haproxy
+	group haproxy
+	daemon
 	lua-load /etc/haproxy/haproxy.cors.lua
 
-	ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
-	ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
-	ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
+  ssl-default-bind-ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+  ssl-default-bind-ciphersuites TLS_AES_128_GCM_SHA256:TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+  ssl-default-bind-options ssl-min-ver TLSv1.2 no-tls-tickets
 
 defaults
   log global
@@ -50,7 +49,7 @@ frontend satellite_http
 	use_backend nginx if is_httpchallenge url_satellite
 
 frontend satellite_https
-	bind :443 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem
+	bind :443,:::443 alpn h2,http/1.1 ssl crt /etc/acme/certificates/{{ satellite_domain }}.haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
@@ -62,7 +61,7 @@ frontend satellite_https
 	use_backend satellite if url_satellite
 
 frontend satellite_clusters_admin
-	bind :3000 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+	bind :3000,:::3000 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
@@ -74,7 +73,7 @@ frontend satellite_clusters_admin
 	use_backend satellite_clusters_admin if url_satellite
 
 frontend satellite_clusters_api
-	bind :3001 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+	bind :3001,:::3001 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
