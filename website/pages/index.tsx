@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import { isSSR, getUrlParams } from "../src/utils";
+import React, { useEffect, useState } from "react";
+import { isSSR, getUrlParams, secondsToTime } from "../src/utils";
 
 // Components
 import Layout from '../src/future-hopr-lib-components/Layout'
@@ -33,6 +33,10 @@ const Index: NextPage = () => {
 
     useEffect(() => {
         getClusterAvailability();
+        const interval = setInterval(() => {
+            getClusterAvailability();
+        }, 5000);
+        return () => clearInterval(interval);
     }, []);
 
   const getClusterAvailability = () => {

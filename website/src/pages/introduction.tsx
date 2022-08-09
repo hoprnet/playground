@@ -43,11 +43,11 @@ const Introduction = (props: {
             </>
           ) : (
             <div className={styles.centerParagraph}>
-              <p>Currently all clusters are in use.<br/>
-                Please wait for{" "}
-                <span className="highlight">{timeUntilRelease}</span>. All{" "}
-                <span className="highlight">{props.clusters.total}</span>{" "}
-                clusters will then be allocated to new users.
+              <p>Currently all <span className="highlight">{props.clusters.total}</span> clusters are in use.<br/>
+                {/*Please wait for{" "}*/}
+                {/*<span className="highlight">{timeUntilRelease}</span>. All{" "}*/}
+                {/*<span className="highlight">{props.clusters.total}</span>{" "}*/}
+                {/*clusters will then be allocated to new users.*/}
               </p>
             </div>
           )}

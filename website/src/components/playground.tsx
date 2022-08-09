@@ -13,6 +13,7 @@ const Playground = () => {
   useEffect(() => {
     if (!animationLoaded.current) {
       lottie.loadAnimation({
+        // @ts-ignore
         container: document.querySelector(`#hero-animation`),
         animationData: playgroundAnimation,
       });
