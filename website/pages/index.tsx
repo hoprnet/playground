@@ -33,7 +33,7 @@ const Index: NextPage = () => {
   const api_url = urlParams.api || NEXT_PUBLIC_API_ENDPOINT || "";
 
     useEffect(() => {
-        if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location = 'https://hoprnet.org/')}
+        if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location.replace('https://hoprnet.org/')};
         getClusterAvailability();
         const interval = setInterval(() => {
             getClusterAvailability();
