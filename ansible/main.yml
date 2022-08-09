@@ -129,6 +129,10 @@
       loop:
         - haproxy
         - nginx
+    - name: Upload HAProxy cors.lua plugin
+      copy:
+        src: haproxy.cors.lua
+        dest: /etc/haproxy/haproxy.cors.lua
     - name: Configure HAProxy (main config)
       template:
         src: haproxy.conf.j2

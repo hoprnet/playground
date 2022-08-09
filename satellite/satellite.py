@@ -12,6 +12,7 @@ import threading
 import argparse
 import subprocess
 import random
+import string
 
 parser = argparse.ArgumentParser(
     description="starts a server which manages Pluto docker containers on the local host and exposes some management functions via an HTTP API",
@@ -137,6 +138,7 @@ RIVERS = [
 
 ALL_NAME_PARTS = [*RIVERS, *COLORS, *MOONS]
 
+
 def generate_container_name():
     data = [COLORS, MOONS, RIVERS]
     random.shuffle(data)
@@ -169,33 +171,85 @@ def docker_remove_container(name):
             )
         )
 
+
+def num_to_word(i):
+    if i == 0:
+        return "zero"
+    elif i == 1:
+        return "one"
+    elif i == 2:
+        return "two"
+    elif i == 3:
+        return "three"
+    elif i == 4:
+        return "four"
+    elif i == 5:
+        return "five"
+    elif i == 6:
+        return "six"
+    elif i == 7:
+        return "seven"
+    elif i == 8:
+        return "eight"
+    elif i == 9:
+        return "nine"
+
+
+def generate_api_token():
+    letters = string.hexdigits + "#"
+    size = 24
+    token = "".join(random.choice(letters) for i in range(size))
+    # ensure one special sign is present
+    if "#" in token:
+        return token
+    return token + "#"
+
+
+PUBLIC_ADMIN_PORT = 3000
+PUBLIC_API_PORT = 3001
+
+
 class Container:
     def __init__(self, name, base_port, started_at=None):
         self.name = name
         self.started_at = started_at
         self.state = "created"
+        self.api_token = generate_api_token()
         # the container requires 10 ports (2 per hoprd node)
         self.base_port = base_port
         self.api_ports = [base_port + i for i in range(5)]
         self.admin_ports = [base_port + i for i in range(5, 10)]
+        docker_api_port = [13301 + i for i in range(5)]
+        docker_admin_port = [19501 + i for i in range(5)]
         # host port to container port
-        self.port_mappings = [
-            # API ports
-            "-p",
-            "{}-{}:13301-13305".format(base_port + 0, base_port + 4),
-            # Admin UI ports
-            "-p",
-            "{}-{}:19091-19095".format(base_port + 5, base_port + 9),
-        ]
+        self.port_mappings = []
+        for i in range(5):
+            self.port_mappings += [
+                "-p",
+                f"127.0.0.1:{self.api_ports[i]}:{docker_api_port[i]}",
+            ]
+            self.port_mappings += [
+                "-p",
+                f"127.0.0.1:{self.admin_ports[i]}:{docker_admin_port[i]}",
+            ]
         nodes = []
         for i in range(5):
             admin_port = self.admin_ports[i]
             api_port = self.api_ports[i]
-            api_url = (
-                f"{args.target_protocol}://{self.name}.{args.target_domain}:{api_port}"
+            domain = f"{num_to_word(i)}_{self.name}.{args.target_domain}"
+            api_url = f"{args.target_protocol}://{domain}:{PUBLIC_API_PORT}"
+            admin_url = f"{args.target_protocol}://{domain}:{PUBLIC_ADMIN_PORT}"
+            # TODO: make this token configurable
+            nodes.append(
+                {
+                    "api_token": self.api_token,
+                    "api_url": api_url,
+                    "admin_url": admin_url,
+                    "domain": domain,
+                    "api_port": api_port,
+                    "admin_port": admin_port,
+                }
             )
-            admin_url = f"{args.target_protocol}://{self.name}.{args.target_domain}:{admin_port}"
-            nodes.append({"api_url": api_url, "admin_url": admin_url})
         self.nodes = nodes
 
     def activate(self):
@@ -210,6 +264,8 @@ class Container:
             "run",
             "--pull",
             "always",
+            "-e",
+            "HOPRD_API_TOKEN",
             "-d",
             "-it",
             "--rm",
@@ -218,7 +274,9 @@ class Container:
             *self.port_mappings,
             args.pluto_image,
         ]
-        result = subprocess.run(cmd, capture_output=True)
+        custom_env = os.environ.copy()
+        custom_env["HOPRD_API_TOKEN"] = self.api_token
+        result = subprocess.run(cmd, capture_output=True, env=custom_env)
         if result.returncode > 0:
             print(
                 "creation of container {} failed with exit code {}: {}".format(
@@ -232,8 +290,10 @@ class Container:
     def delete(self):
         docker_remove_container(self.name)
 
+
 class State:
     def __init__(self, containers=[]):
+        self.last_haproxy_conf = ""
         self.containers = containers
         # generate 10x the amount of names we need
         self.available_container_names = generate_container_names(
@@ -246,8 +306,9 @@ class State:
 
     # remove containers which are not managed by this state
     def purge_zombie_containers(self):
-        result = subprocess.run(["docker", "ps", "--format", "{{.Names}}"],
-                                capture_output=True)
+        result = subprocess.run(
+            ["docker", "ps", "--format", "{{.Names}}"], capture_output=True
+        )
         if result.returncode > 0:
             print(
                 "execution of docker container list failed with exit code {}: {}".format(
@@ -257,14 +318,15 @@ class State:
             return
         names = result.stdout.split()
         for n in names:
-            name = str(n, 'UTF-8')
+            name = str(n, "UTF-8")
             containers = [c for c in self.containers if c.name == name]
-            if (len(containers) == 1):
+            if len(containers) == 1:
                 # we know the container, can skip
                 continue
-            name_parts = name.split('_')
+            name_parts = name.split("_")
             if all([(p in ALL_NAME_PARTS) for p in name_parts]):
                 # the name could have been used by a previous server, so purge
+                print(f"purging zombie container {name}")
                 docker_remove_container(name)
 
     def get_name(self):
@@ -280,6 +342,7 @@ class State:
         self.purge_zombie_containers()
         # delete old containers
         for c in self.old_containers():
+            print(f"deleting old container {c.name}")
             self.delete_container(c)
         # start new containers
         for i in range(len(self.containers), args.pluto_container_count):
@@ -293,47 +356,61 @@ class State:
         print("sync containers finished")
 
     def write_haproxy_configuration(self):
-        conf_acls = []
+        conf_backends = []
+
+        backend_admin = f"""
+backend satellite_clusters_admin
+        """
+        backend_api = f"""
+backend satellite_clusters_api
+        """
 
         for c in self.active_containers():
-            # need to use underscores in haproxy var names
-            name_acl = c.name.replace("-", "_")
-            acls = f"""
-    acl url_{name_acl} hdr(host) -i {c.name}.{args.target_domain}
-            """
+            for n in c.nodes:
+                domain = n["domain"]
 
-            for port in c.admin_ports:
-                acls += f"""
-    acl port_{name_acl}_admin_{port} hdr(port) -i {port}
-    use_server satellite_cluster_{name_acl}_admin_{port} if url_{name_acl} port_{name_acl}_admin_{port}
-    server satellite_cluster_{name_acl}_admin_{port} 127.0.0.1:{port} weight 0
+                backend_admin += f"""
+    acl url_{domain} hdr(host) -i -m beg {domain}
+    use-server satellite_clusters_admin_{domain} if url_{domain}
+    server satellite_clusters_admin_{domain} 127.0.0.1:{n["admin_port"]} weight 0
                 """
 
-            for port in c.api_ports:
-                acls += f"""
-    acl port_{name_acl}_api_{port} hdr(port) -i {port}
-    use_backend satellite_cluster_{name_acl}_api_{port} if url_{name_acl} port_{name_acl}_api_{port}
-    server satellite_cluster_{name_acl}_api_{port} 127.0.0.1:{port} weight 0
+                backend_api += f"""
+    acl url_{domain} hdr(host) -i -m beg {domain}
+    use-server satellite_clusters_api_{domain} if url_{domain}
+    server satellite_clusters_api_{domain} 127.0.0.1:{n["api_port"]} weight 0
                 """
 
-            conf_acls.append(acls)
+        backend_admin += f"""
+    server nginx_fallback 127.0.0.1:8080 check
+        """
 
-        conf = "backend satellite_cluster\n"
+        backend_api += f"""
+    server nginx_fallback 127.0.0.1:8080 check
+        """
 
-        if len(conf_acls) > 0:
-            conf += os.linesep.join(conf_acls)
+        conf_backends += [backend_admin, backend_api]
+
+        conf = f"""
+{os.linesep.join(conf_backends)}
+"""
 
         with open(args.haproxy_conf, "w", encoding="utf-8") as f:
             f.write(conf)
+            f.write("")
 
-        if args.post_haproxy_config_cmd:
-            result = subprocess.run(args.post_haproxy_config_cmd, shell=True, capture_output=True)
+        if args.post_haproxy_config_cmd and self.last_haproxy_conf != conf:
+            result = subprocess.run(
+                args.post_haproxy_config_cmd, shell=True, capture_output=True
+            )
             if result.returncode > 0:
                 print(
                     "execution of post_haproxy_config_cmd failed with exit code {}: {}".format(
                         result.returncode, result.stderr
                     )
                 )
+
+        self.last_haproxy_conf = conf
 
     def old_containers(self):
         now = int(round(time.time()))
@@ -369,7 +446,7 @@ class State:
         # delete in Docker
         container.delete()
         # remove from state
-        self.containers = [c for c in self.containers if c.name == container.name]
+        self.containers = [c for c in self.containers if c.name != container.name]
         # enable name for re-use
         self.available_container_names.insert(0, container.name)
         # enable base port for re-use
@@ -404,22 +481,15 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.handle_request()
 
-    def do_OPTIONS(self):
-        self.handle_request()
-
     def handle_request(self):
         c = self.command
         p = self.path
         if c in ["HEAD", "GET"] and p == "/api/clusters":
             self.set_response_headers()
             self.handle_get_clusters_info()
-        elif c in ["OPTIONS"] and p == "/api/clusters":
-            self.set_response_headers()
         elif c in ["HEAD", "POST"] and p == "/api/clusters/activate":
             self.set_response_headers()
             self.handle_activate_cluster()
-        elif c in ["OPTIONS"] and p == "/api/clusters/activate":
-            self.set_response_headers()
         else:
             self.send_response(404)
             self.send_header("Content-type", "application/json")
@@ -437,10 +507,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         msg = {}
         container = state.activate_container()
         if container:
+            nodes = [
+                {
+                    "api_url": n["api_url"],
+                    "admin_url": n["admin_url"],
+                    "api_token": n["api_token"],
+                }
+                for n in container.nodes
+            ]
             msg = {
                 "cluster_name": container.name,
                 "cluster_valid_until": container.finished_at,
-                "cluster_nodes": container.nodes,
+                "cluster_nodes": nodes,
             }
         else:
             msg = {"error": "no cluster available"}
