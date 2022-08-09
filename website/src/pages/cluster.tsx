@@ -82,14 +82,14 @@ const Cluster = (props: {
               <LinkHolder key={link} nodeNumber={index} link={link} />
           ))}
         </div>
-        {/*{*/}
-        {/*  props.peerIds?.length > 0 && 'Peer IDs:'*/}
-        {/*}*/}
-        {/*<div className={`bottomGap topGap ${styles.links}`}>*/}
-        {/*  {props.peerIds?.map((link, index) => (*/}
-        {/*      <LinkHolder key={link} nodeNumber={index} link={link} />*/}
-        {/*  ))}*/}
-        {/*</div>*/}
+        {
+          props.peerIds?.length > 0 && 'Peer IDs:'
+        }
+        <div className={`bottomGap topGap ${styles.links}`}>
+          {props.peerIds?.map((link, index) => (
+              <LinkHolder key={link} nodeNumber={index} link={link} />
+          ))}
+        </div>
       </div>
     </Section>
   );
