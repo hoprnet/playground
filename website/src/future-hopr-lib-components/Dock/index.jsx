@@ -44,6 +44,7 @@ const StyledDock = styled.ul`
 
     li {
       list-style: none;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
