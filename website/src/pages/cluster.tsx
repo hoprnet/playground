@@ -85,7 +85,7 @@ const Cluster = (props: {
                   <div className={styles.nodeDetailsLine}><strong>Node {index}</strong></div>
                   <div className={styles.nodeDetailsLine}>
                     <div className={styles.nodeDetailsTitle}><strong>Url:</strong></div>
-                    <div className={styles.nodeDetailsData}><a href={link} target="_blank">{link}</a></div>
+                    <div className={styles.nodeDetailsData}><a href={link} target="_blank" rel="noreferrer" >{link}</a></div>
                     <div className={styles.nodeDetailsCopy}><CopyButton copy={link}/></div>
                   </div>
                   <div className={styles.nodeDetailsLine}>
