@@ -85,17 +85,17 @@ const Index: NextPage = () => {
     // DEV only
     // set_clusterOn(true);
     // set_clusters(placeholderResponse.cluster_nodes);
+
   };
 
     const getPeerIds = async (clusters: Clusters) => {
-
-        setTimeout(()=>{
-            let peerIds:string[] = [];
+        setTimeout(async ()=>{
+            let peerIdsTmp:string[] = [];
             for (let i = 0; i < clusters.length; i++) {
                 //  for (let i = 0; i < 2; i++){
                 console.log('clusters', clusters);
                 //       const req = new Request();
-                fetch(`${clusters[i].api_url}/api/v2/account/addresses`, {
+                await fetch(`${clusters[i].api_url}/api/v2/account/addresses`, {
                     "method": 'GET',
                     "headers": {
                         "accept": "*/*",
@@ -104,19 +104,20 @@ const Index: NextPage = () => {
                 })
                     .then(response => response.json())
                     .then(data => {
-                        peerIds.push(data.hoprAddress);
+                        peerIdsTmp.push(data.hoprAddress);
                     })
                     .catch(err => {
                         console.error(`API call failed with ${err}`)
                     });
             }
-            console.log('peerIds', peerIds);
-        //    set_peerIds(peerIds);
-        //    set_peerIds(['1', '1','1','1','1']); //DEV
-        }, 3000)
 
-
-
+            if(peerIdsTmp.length !== clusters.length) {
+                await getPeerIds(clusters);
+            } else {
+                console.log('peerIds', peerIdsTmp);
+                set_peerIds(peerIdsTmp);
+            }
+        }, 1000)
     };
 
   const parseApps = (apps: Apps, clusters: Clusters) => {
