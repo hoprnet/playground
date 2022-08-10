@@ -34,5 +34,10 @@ export const dapps:Apps = [
         name: 'myne-chat',
         url: 'https://app.myne.chat',
         icon: '/dapp-icons/myne.chat.svg',
+    },
+    {
+        key: 'hoprd-admin',
+        name: 'hoprd-admin',
+        icon: '/dapp-icons/hoprd.svg',
     }
 ]

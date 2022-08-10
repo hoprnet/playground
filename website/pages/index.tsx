@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { isSSR, getUrlParams, secondsToTime } from "../src/utils";
 
 // Components
@@ -18,7 +18,7 @@ import {Clusters, ClustersAvailability, Apps} from '../src/types'
 
 
 const Index: NextPage = () => {
-  const [clusterOn, set_clusterOn] = useState<boolean>(false);
+  const clusterOn = useRef(false);
   const [clusters, set_clusters] = useState<Clusters>([]);
   const [peerIds, set_peerIds] = useState<string[]>([]);
   const [clustersValidUntil, set_clustersValidUntil] = useState<number>(0);
@@ -36,7 +36,7 @@ const Index: NextPage = () => {
         if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location.replace('https://hoprnet.org/')};
         getClusterAvailability();
         const interval = setInterval(() => {
-            if(!clusterOn){
+            if(!clusterOn.current) {
                 getClusterAvailability();
             }
         }, 5000);
@@ -78,7 +78,7 @@ const Index: NextPage = () => {
         .then(response => response.json())
         .then(data => {
           console.log(`/activate Resp:`, data);
-          set_clusterOn(true);
+          clusterOn.current = true;
           set_clusters(data.cluster_nodes);
           set_clustersValidUntil(data.cluster_valid_until);
         })
@@ -87,7 +87,7 @@ const Index: NextPage = () => {
         });
 
     // DEV only
-    // set_clusterOn(true);
+    // sclusterOn.current = true;
     // set_clusters(placeholderResponse.cluster_nodes);
 
   };
@@ -134,16 +134,26 @@ const Index: NextPage = () => {
 
     let parsedApps = [];
     for (let i = 0; i < apps.length; i++) {
-      let icon: string | undefined = placeholderMacIcons[i].icon;
-      if (apps[i].icon) icon = apps[i].icon;
-      parsedApps.push(
-          {
+        let icon: string | undefined = placeholderMacIcons[i].icon;
+        if (apps[i].icon) icon = apps[i].icon;
+
+      if(apps[i].name === 'hoprd-admin') {
+          parsedApps.push({
             key: apps[i].key,
             name: apps[i].name,
             icon,
-            links: nodeUrlParams.map(params => apps[i].url + params)
-          }
-      )
+            links: clusters.map(cluster => cluster.admin_url + `?apiToken=${encodeURIComponent(cluster.api_token)}`)
+        })
+      } else {
+          parsedApps.push(
+              {
+                  key: apps[i].key,
+                  name: apps[i].name,
+                  icon,
+                  links: nodeUrlParams.map(params => apps[i].url + params)
+              }
+          )
+      }
     }
 
   //  console.log('parsedApps', parsedApps);
@@ -152,7 +162,7 @@ const Index: NextPage = () => {
 
   return (
     <Layout>
-      { !clusterOn ? (
+      { !clusterOn.current ? (
         <Introduction
           clusters={clustersAvailability}
           launchCluster={launchCluster}
