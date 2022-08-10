@@ -57,6 +57,7 @@ const Cluster = (props: {
       </div>
 
       {/* show apps */}
+      <div className={styles.dAppDockTitle}><strong>dApp Dock</strong></div>
       <Dock
         apps={props.apps}
         iconClicked={set_selection}
