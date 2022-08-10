@@ -46,8 +46,7 @@ const Cluster = (props: {
       <div className={`container section ${styles.welcome}`}>
         <Playground />
         <div>
-          <strong>WELCOME TO YOUR PLAYGROUND</strong>
-          <br /><br />
+          <div className={styles.dAppDockTitle}>WELCOME TO YOUR PLAYGROUND</div>
           You can now choose one of the dApps below and start exploring it. Be aware that your session will be terminated automatically after 20
           minutes. <br/><br/>Time remaining:{" "}
           <span className="highlight">{timeRemaining}</span>.
@@ -55,14 +54,15 @@ const Cluster = (props: {
       </div>
 
       {/* show apps */}
-      <div className={styles.dAppDockTitle}><strong>dApp Dock</strong></div>
+      <div className={styles.dAppDockTitle}><strong>PLAYGROUND DAPP DOCK</strong></div>
+      <div className={styles.dAppDockSubtitle}>Choose  which dApp you'd like to play first</div>
       <Dock
         apps={props.apps}
         iconClicked={set_selection}
       />
 
       <div className={`container section topGap ${styles.linksContainer}`}>
-        <div className={`${styles.appTitle}`}>
+        <div className={styles.dAppDockTitle}>
           {selection !== -1 ? props.apps[selection].name : ''}
         </div>
         {/*<div>*/}
