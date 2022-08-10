@@ -51,7 +51,7 @@ const Cluster = (props: {
           <br />
           <br />
           Be aware that your session will be terminated automatically after 20
-          minutes. Time remaining:{" "}
+          minutes. <br/><br/>Time remaining:{" "}
           <span className="highlight">{timeRemaining}</span>.
         </div>
       </div>
