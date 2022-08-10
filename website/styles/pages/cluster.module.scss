@@ -64,9 +64,6 @@
 .nodeDetails {
     div {
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 600px;
     }
 }
 
@@ -80,7 +77,7 @@
 }
 
 .nodeDetailsTitle {
-    width: 77px;
+    width: 85px;
     flex-shrink: 0;
 }
 
@@ -95,6 +92,9 @@
 .nodeDetailsData {
     flex-grow: 1;
     flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 600px;
     a:hover {
         text-decoration: underline;
     }
