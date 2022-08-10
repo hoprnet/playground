@@ -46,11 +46,9 @@ const Cluster = (props: {
       <div className={`container section ${styles.welcome}`}>
         <Playground />
         <div>
-          Welcome to your playground – your cluster has started! You can now
-          choose one of the dApps below and start exploring it.
-          <br />
-          <br />
-          Be aware that your session will be terminated automatically after 20
+          <strong>WELCOME TO YOUR PLAYGROUND</strong>
+          <br /><br />
+          You can now choose one of the dApps below and start exploring it. Be aware that your session will be terminated automatically after 20
           minutes. <br/><br/>Time remaining:{" "}
           <span className="highlight">{timeRemaining}</span>.
         </div>
@@ -67,18 +65,18 @@ const Cluster = (props: {
         <div className={`${styles.appTitle}`}>
           {selection !== -1 ? props.apps[selection].name : ''}
         </div>
-        <div>
-          The HOPR network is a decentralized incentivized mixnet, ensuring
-          complete data and metadata privacy for everyone who uses it. Data is
-          sent via multiple hops, so no-one but the sender and receiver know the
-          origin, destination, or content of a data transfer.
-          <br />
-          <br />
-          <br />
-          Hoprd allows you to open channels, send one, two or three hop messages
-          as well as check your balance and much more. Check docs.hoprnet.org
-          for all available commands.
-        </div>
+        {/*<div>*/}
+        {/*  The HOPR network is a decentralized incentivized mixnet, ensuring*/}
+        {/*  complete data and metadata privacy for everyone who uses it. Data is*/}
+        {/*  sent via multiple hops, so no-one but the sender and receiver know the*/}
+        {/*  origin, destination, or content of a data transfer.*/}
+        {/*  <br />*/}
+        {/*  <br />*/}
+        {/*  <br />*/}
+        {/*  Hoprd allows you to open channels, send one, two or three hop messages*/}
+        {/*  as well as check your balance and much more. Check docs.hoprnet.org*/}
+        {/*  for all available commands.*/}
+        {/*</div>*/}
         <div className={`bottomGap topGap ${styles.links}`}>
           {links?.map((link, index) => (
               <>
