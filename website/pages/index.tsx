@@ -111,7 +111,8 @@ const Index: NextPage = () => {
                     });
             }
             console.log('peerIds', peerIds);
-            set_peerIds(peerIds);
+        //    set_peerIds(peerIds);
+        //    set_peerIds(['1', '1','1','1','1']); //DEV
         }, 3000)
 
 
