@@ -12,7 +12,6 @@ const Introduction = (props: {
   clusters: State["clusters"];
   launchCluster: () => void;
 }) => {
-  console.log("props.clusters", props.clusters)
   const hasAvailableCluster = props.clusters.available > 0;
   // time remaining until release - computed via secondsUntilRelease
   // used a memo here incase we introduce a countdown later

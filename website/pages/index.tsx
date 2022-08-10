@@ -36,13 +36,17 @@ const Index: NextPage = () => {
         if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location.replace('https://hoprnet.org/')};
         getClusterAvailability();
         const interval = setInterval(() => {
-            getClusterAvailability();
+            if(!clusterOn){
+                getClusterAvailability();
+            }
         }, 5000);
         return () => clearInterval(interval);
     }, []);
 
     useEffect(( ) => {
-        getPeerIds(clusters)
+        if(clusters.length > 0){
+            getPeerIds(clusters);
+        }
     }, [clusters]);
 
     const getClusterAvailability = () => {
@@ -51,7 +55,7 @@ const Index: NextPage = () => {
       fetch(req)
           .then(response => response.json())
           .then(data => {
-              console.log(`/clusters Resp:`, data);
+              //console.log(`/clusters Resp:`, data);
               set_clustersAvailability({
                   total: data.total_clusters_count,
                   used: data.total_clusters_count - data.free_clusters_count,
