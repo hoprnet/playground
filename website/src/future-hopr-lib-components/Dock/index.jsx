@@ -1,12 +1,14 @@
 import React, { useState} from "react";
 import styled from "@emotion/styled";
 
-const StyledDock = styled.ul`
+const StyledDock = styled.div`
   width: 100%;
   height: 80px;
   border-radius: 16px;
   display: flex;
   justify-content: center;
+  margin-top: 1em;
+  padding-inline-start: 0;
   //position: absolute;
   //bottom: 20px;
   //left: 50%;
@@ -42,7 +44,7 @@ const StyledDock = styled.ul`
       }
     }
 
-    li {
+    div.icon-in-dock  {
       list-style: none;
       cursor: pointer;
       display: flex;
@@ -104,6 +106,20 @@ const StyledDock = styled.ul`
       }
     }
   }
+  @media only screen and (max-width: 500px) {
+    height: unset;
+    .dock-container {
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .icon-in-dock {
+      position: relative;
+      &.li-active::after {
+        bottom: -4px;
+      }
+    }
+  }
+  
   .icon-in-dock:hover {
     .name {
       visibility: visible !important;
@@ -163,7 +179,7 @@ function Dock(props) {
                 {
                     props.apps.map((app, index) =>{
                         return (
-                            <li
+                            <div
                                 className={`li-${index} icon-in-dock ${index === indexActive ? 'li-active' : ''}`}
                                 key={`li-${index}`}
                                 onClick={()=>{
@@ -177,7 +193,7 @@ function Dock(props) {
                                      src={app.icon}
                                      alt=""
                                 />
-                            </li>
+                            </div>
                         )}
                     )
                 }

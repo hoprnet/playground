@@ -92,14 +92,14 @@ const Cluster = (props: {
                   <div className={styles.nodeDetailsLine}>
                     <div className={styles.nodeDetailsTitle}><strong>Peer ID:</strong></div>
                     <div className={styles.nodeDetailsData}>{props.peerIds?.length > 0 ? props.peerIds[index] : 'loading...' }</div>
-                    <div className={styles.nodeDetailsCopy}><CopyButton/></div>
+                    {props.peerIds[index] && <div className={styles.nodeDetailsCopy}><CopyButton copy={props.peerIds[index]}/></div>}
                   </div>
                   {
                     selection !== -1 && props.apps[selection].name === 'hoprd-admin' &&
                     <div className={styles.nodeDetailsLine}>
                       <div className={styles.nodeDetailsTitle}><strong>API key:</strong></div>
                       <div className={styles.nodeDetailsData}>{props.clusters[index].api_token}</div>
-                      <div className={styles.nodeDetailsCopy}><CopyButton/></div>
+                      <div className={styles.nodeDetailsCopy}><CopyButton copy={props.clusters[index].api_token}/></div>
                     </div>
                   }
                 </div>
