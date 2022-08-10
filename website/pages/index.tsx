@@ -14,7 +14,7 @@ import placeholderMacIcons from "../src/data/placeholderMacIcons.json";
 
 //Types
 import type { NextPage } from "next";
-import {Clusters, ClustersAvailability, Apps} from '../src/types'
+import {Clusters, ClustersAvailability, Apps} from '../src/types';
 
 
 const Index: NextPage = () => {
@@ -33,7 +33,20 @@ const Index: NextPage = () => {
   const api_url = urlParams.api || NEXT_PUBLIC_API_ENDPOINT || "";
 
     useEffect(() => {
-        if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location.replace('https://hoprnet.org/')};
+        // Pre-release redirect
+        if(process.env.NEXT_PUBLIC_REDIRECT === '1') { window.location.replace("https://hoprnet.org/")}
+
+        //Get clusters from localStorage
+        if(localStorage["clustersValidUntil"]){
+            const leftSeconds = parseInt(localStorage["clustersValidUntil"]) - Date.now()/1000;
+            if(leftSeconds > 60) {
+                clusterOn.current = true;
+                set_clustersValidUntil(parseInt(localStorage["clustersValidUntil"]));
+                set_clusters(JSON.parse(localStorage["clusters"]));
+            }
+        }
+
+        //Get clusters
         getClusterAvailability();
         const interval = setInterval(() => {
             if(!clusterOn.current) {
@@ -81,6 +94,8 @@ const Index: NextPage = () => {
           clusterOn.current = true;
           set_clusters(data.cluster_nodes);
           set_clustersValidUntil(data.cluster_valid_until);
+          localStorage.setItem('clusters', JSON.stringify(data.cluster_nodes));
+          localStorage.setItem('clustersValidUntil', data.cluster_valid_until);
         })
         .catch(err => {
           console.error(`API call failed with ${err}`)

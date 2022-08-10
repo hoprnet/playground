@@ -55,7 +55,7 @@ const Cluster = (props: {
 
       {/* show apps */}
       <div className={styles.dAppDockTitle}><strong>PLAYGROUND DAPP DOCK</strong></div>
-      <div className={styles.dAppDockSubtitle}>Choose  which dApp you'd like to play first</div>
+      <div className={styles.dAppDockSubtitle}>Choose which dApp you`d like to play first</div>
       <Dock
         apps={props.apps}
         iconClicked={set_selection}
