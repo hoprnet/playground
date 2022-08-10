@@ -106,16 +106,21 @@ const StyledDock = styled.div`
       }
     }
   }
+
   @media only screen and (max-width: 500px) {
     height: unset;
     .dock-container {
       flex-wrap: wrap;
-      gap: 16px;
-    }
-    .icon-in-dock {
-      position: relative;
-      &.li-active::after {
-        bottom: -4px;
+      gap: 24px;
+      padding: 14px;
+      div.icon-in-dock {
+        position: relative;
+        img.ico {
+          padding: 0;
+        }
+        &.li-active::after {
+          bottom: -10px;
+        }
       }
     }
   }
