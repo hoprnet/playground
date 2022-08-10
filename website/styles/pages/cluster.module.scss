@@ -47,6 +47,7 @@
 
 .linksContainer {
     display: flex;
+    width: 100%;
 }
 
 .links {
@@ -54,3 +55,44 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.nodeDetails {
+    div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 600px;
+    }
+}
+
+.nodeDetailsLine {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+}
+
+.nodeDetailsTitle {
+    width: 77px;
+    flex-shrink: 0;
+}
+
+.nodeDetailsCopy {
+    flex-shrink: 0;
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.nodeDetailsData {
+    flex-grow: 1;
+    flex-shrink: 1;
+    a:hover {
+        text-decoration: underline;
+    }
+}
+
+

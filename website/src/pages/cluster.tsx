@@ -8,6 +8,7 @@ import Playground from "../components/playground";
 import LinkHolder from "../components/link-holder";
 import Section from "../future-hopr-lib-components/Section"
 import Dock from "../future-hopr-lib-components/Dock"
+import CopyButton from '../future-hopr-lib-components/CopyButton'
 
 //Types
 import { App, Apps, Clusters, ClustersAvailability, Links } from '../types'
@@ -78,16 +79,22 @@ const Cluster = (props: {
           for all available commands.
         </div>
         <div className={`bottomGap topGap ${styles.links}`}>
-          {props.peerIds?.map((link, index) => (
-              <LinkHolder key={link} nodeNumber={index} link={link} />
-          ))}
-        </div>
-        {
-          props.peerIds?.length > 0 && 'Peer IDs:'
-        }
-        <div className={`bottomGap topGap ${styles.links}`}>
-          {props.peerIds?.map((link, index) => (
-              <LinkHolder key={link} nodeNumber={index} link={link} />
+          {links?.map((link, index) => (
+              <>
+                <div className={`${styles.nodeDetails}`}>
+                  <div className={styles.nodeDetailsLine}><strong>Node {index}</strong></div>
+                  <div className={styles.nodeDetailsLine}>
+                    <div className={styles.nodeDetailsTitle}><strong>Url:</strong></div>
+                    <div className={styles.nodeDetailsData}><a href={link} target="_blank">{link}</a></div>
+                    <div className={styles.nodeDetailsCopy}><CopyButton copy={link}/></div>
+                  </div>
+                  <div className={styles.nodeDetailsLine}>
+                    <div className={styles.nodeDetailsTitle}><strong>Peer ID:</strong></div>
+                    <div className={styles.nodeDetailsData}>{props.peerIds?.length > 0 ? props.peerIds[index] : 'loading...' }</div>
+                    <div className={styles.nodeDetailsCopy}><CopyButton/></div>
+                  </div>
+                </div>
+              </>
           ))}
         </div>
       </div>
