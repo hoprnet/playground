@@ -13,12 +13,10 @@ export const dapps: Apps = [
         </a>
         <br />
         <br />
-        Spin up five HOPR nodes for you to test via a command line. The familiar
-        interface from our testnets, without any of the install steps!
+          Spin up five HOPR nodes for you to test via a command line. The familiar interface from our testnets, without any of the install steps!
+          <br />
         <br />
-        <br />
-        Type &apos;help&apos; for a list of available commands, or visit our
-        docs at docs.hoprnet.org for more information.
+          Wait ~20s for the screen to turn from yellow to blue, then type &apos;help&apos; for a list of available commands, or visit our docs at <a href="https://docs.hoprnet.org/" target="_blank" rel="noreferrer">https://docs.hoprnet.org/</a> for more information.
       </div>
     ),
   },
@@ -36,13 +34,10 @@ export const dapps: Apps = [
         </a>
         <br />
         <br />
-        Visualizer draws a graphical representation of the HOPR network, showing
-        all the nodes and the connections between them.
+        Visualizer draws a graphical representation of the HOPR network, showing all the nodes and the connections between them.
         <br />
         <br />
-        Use the interface to toggle between two modes: the first uses subgraph
-        data to visualize payment channels, the second by getting information
-        from the nodes themselves.
+        <strong>Disclaimer: </strong>The data in this app are from our last public testnet (<a href="https://medium.com/hoprnet/matterhorn-testnet-is-coming-5a69ad9cb815" target="_blank" rel="noreferrer">Matterhorn</a>) and do not represent the Playground state.
       </div>
     ),
   },
@@ -130,13 +125,13 @@ export const dapps: Apps = [
         </a>
         <br />
         <br />
-        Chat should be private but it isn&apos;t. Your identity is exposed,
-        along with your data and metadata. Myne will make chat private and will
-        pay you for making the internet more secure.
+        myne.chat – Chat. Finally private.
         <br />
         <br />
-        Try out the myne experience in this version for Playground
-      </div>
+        Chat should be private but it isn&apos;t. Your identity is exposed, along with your data and metadata. Myne will make chat private and will pay you for making the internet more secure.
+        <br />
+        <br />
+        Try out the myne experience in this version for Playground. Share links and PeerIDs with friends to give them access to a node and message with you.      </div>
     ),
   },
 ];
