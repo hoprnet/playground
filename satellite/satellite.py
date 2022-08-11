@@ -239,7 +239,6 @@ class Container:
             domain = f"{num_to_word(i)}_{self.name}.{args.target_domain}"
             api_url = f"{args.target_protocol}://{domain}:{PUBLIC_API_PORT}"
             admin_url = f"{args.target_protocol}://{domain}:{PUBLIC_ADMIN_PORT}"
-            # TODO: make this token configurable
             nodes.append(
                 {
                     "api_token": self.api_token,
