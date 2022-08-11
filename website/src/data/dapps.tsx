@@ -63,13 +63,14 @@ export const dapps:Apps = [
         url: 'https://hopr-chess.vercel.app/',
         author: 'vividwood',
         icon: '/dapp-icons/chess.svg',
-        text: <div>
-            Developer: https://github.com/vividwood
-            <br/><br/>
-            The classic game of strategy, now over HOPR!
-            <br/><br/>
-            Find a friend (or enemy) to play against, share the link of another node in your playground cluster and follow the connection instructions to play a game.
-        </div>,
+        text:
+            <div>
+                Developer: https://github.com/vividwood
+                <br/><br/>
+                The classic game of strategy, now over HOPR!
+                <br/><br/>
+                Find a friend (or enemy) to play against, share the link of another node in your playground cluster and follow the connection instructions to play a game.
+            </div>,
     },
     {
         key: 'myne-chat',
