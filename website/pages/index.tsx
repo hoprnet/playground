@@ -155,7 +155,7 @@ const Index: NextPage = () => {
     for (let i = 0; i < apps.length; i++) {
       let icon: string | undefined = placeholderMacIcons[i].icon;
       if (apps[i].icon) icon = apps[i].icon;
-      if (apps[i].name === "hoprd-admin") {
+      if (apps[i].key === "hoprd-admin") {
         parsedApps.push({
           key: apps[i].key,
           name: apps[i].name,
