@@ -1,0 +1,43 @@
+@startuml
+
+component playground {
+  cloud vercel.com {
+		agent website as "playground.hoprnet.org"
+	}
+	node playground-alpha as "playground-alpha.hoprtech.net" {
+		node satellite as "Satellite"
+		component docker as "Docker Engine" {
+			frame cluster_1 as "Cluster One" {
+				collections hoprd_nodes_1 as "HOPRd nodes 1..5"
+			}
+			frame cluster_2 as "Cluster Two" {
+				collections hoprd_nodes_2 as "HOPRd nodes 1..5"
+			}
+		}
+	}
+}
+
+actor user_1 as "User A"
+actor user_2 as "User B"
+
+cloud {
+	agent dapp_1 as "Myne Chat"
+	agent dapp_2 as "Status Board"
+}
+
+website ..> satellite : uses API
+
+satellite ==> cluster_1 : manages
+satellite ==> cluster_2 : manages
+
+dapp_1 ..> cluster_1 : uses HOPRd APIs
+dapp_2 ..> cluster_2 : uses HOPRd APIs
+
+user_1 --> dapp_1 : uses
+user_2 --> dapp_2 : uses
+
+user_1 --> website : activates cluster
+user_2 --> website : activates cluster
+
+
+@enduml

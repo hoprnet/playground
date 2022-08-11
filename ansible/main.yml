@@ -125,7 +125,7 @@
   tasks:
     - name: Install HAProxy, Nginx
       apt:
-        name: '{{ item }}'
+        name: "{{ item }}"
       loop:
         - haproxy
         - nginx
@@ -140,7 +140,7 @@
     - name: Configure HAProxy (extra config)
       template:
         src: haproxy.extra.conf.j2
-        dest: '{{ haproxy_extra_conf }}'
+        dest: "{{ haproxy_extra_conf }}"
     - name: Configure HAProxy service
       template:
         src: haproxy.service.j2
@@ -166,7 +166,7 @@
         dest: /etc/systemd/system/satellite.service
     - name: Enable services
       systemd:
-        name: '{{ item }}'
+        name: "{{ item }}"
         daemon_reload: true
         enabled: true
         state: restarted

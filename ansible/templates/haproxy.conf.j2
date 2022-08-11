@@ -73,7 +73,7 @@ frontend satellite_clusters_admin
 	use_backend satellite_clusters_admin if url_satellite
 
 frontend satellite_clusters_api
-	bind :3001,:::3001 v4v6 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
+	bind :3001,:::3001 alpn h2,http/1.1 ssl crt /etc/acme/certificates/_.{{ satellite_clusters_domain }}.haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
