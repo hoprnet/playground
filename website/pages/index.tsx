@@ -156,6 +156,7 @@ const Index: NextPage = () => {
           parsedApps.push({
             key: apps[i].key,
             name: apps[i].name,
+            text: apps[i].text,
             icon,
             links: clusters.map(cluster => cluster.admin_url + `?apiEndpoint=${encodeURIComponent(cluster.api_url)}&apiToken=${encodeURIComponent(cluster.api_token)}`)
         })
@@ -164,6 +165,7 @@ const Index: NextPage = () => {
               {
                   key: apps[i].key,
                   name: apps[i].name,
+                  text: apps[i].text,
                   icon,
                   links: nodeUrlParams.map(params => apps[i].url + params)
               }

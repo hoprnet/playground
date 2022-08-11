@@ -65,18 +65,9 @@ const Cluster = (props: {
         <div className={styles.dAppDockTitle}>
           {selection !== -1 ? props.apps[selection].name : ''}
         </div>
-        {/*<div>*/}
-        {/*  The HOPR network is a decentralized incentivized mixnet, ensuring*/}
-        {/*  complete data and metadata privacy for everyone who uses it. Data is*/}
-        {/*  sent via multiple hops, so no-one but the sender and receiver know the*/}
-        {/*  origin, destination, or content of a data transfer.*/}
-        {/*  <br />*/}
-        {/*  <br />*/}
-        {/*  <br />*/}
-        {/*  Hoprd allows you to open channels, send one, two or three hop messages*/}
-        {/*  as well as check your balance and much more. Check docs.hoprnet.org*/}
-        {/*  for all available commands.*/}
-        {/*</div>*/}
+        <div >
+          {selection !== -1 ? props.apps[selection].text : ''}
+        </div>
         <div className={`bottomGap topGap ${styles.links}`}>
           {links?.map((link, index) => (
               <>
