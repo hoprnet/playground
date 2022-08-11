@@ -1,3 +1,4 @@
+import React from 'react'
 export type State = {
     page: "introduction" | "playground";
     clusters: {
@@ -31,6 +32,7 @@ export type App = {
     nodes?: string[];
     author?: string;
     links?: Links;
+    text: React.ReactNode;
 };
 
 export type Links = string[] | undefined;
