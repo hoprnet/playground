@@ -106,9 +106,7 @@ export const dapps: Apps = [
         The classic game of strategy, now over HOPR!
         <br />
         <br />
-        Find a friend (or enemy) to play against, share the link of another node
-        in your playground cluster and follow the connection instructions to
-        play a game.
+        Find a friend (or enemy) to play against, share the link and PeerID of another node in your Playground cluster and follow the connection instructions to play a game.
       </div>
     ),
   },
