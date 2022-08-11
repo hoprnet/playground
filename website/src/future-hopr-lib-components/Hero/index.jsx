@@ -9,7 +9,7 @@ import HoprBall from './hopr-ball.svg';
 import lottie from "lottie-web";
 
 const SSection = styled(Section)`
-  padding-bottom: 80px;
+  //padding-bottom: 80px;
   padding-top: 0;
 `
 
@@ -66,7 +66,10 @@ function Hero(props) {
             </ImageContainer>
 
             <Typography type="h2" center>
-                Welcome to the HOPR Playground! Try out the HOPR protocol without installing anything.
+                WELCOME TO THE HOPR PLAYGROUND!
+            </Typography>
+            <Typography center>
+                Try out the HOPR protocol without installing anything.
             </Typography>
 
         </SSection>

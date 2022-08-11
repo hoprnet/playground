@@ -33,16 +33,17 @@ const Introduction = (props: {
               <span>
                 Currently{" "}
                 <span className="highlight">{props.clusters.used}</span>{" "}
-                clusters are in use.
+                {props.clusters.used === 1 ? 'cluster is in use.' : 'clusters are in use.'}
               </span>
               <span>
                 <span className="highlight">{props.clusters.available}</span>{" "}
-                clusters are available for you.
+                {props.clusters.available === 1 ? 'cluster is available for you.' : 'clusters are available for you.'}
+
               </span>
             </>
           ) : (
             <div className={styles.centerParagraph}>
-              <p>Currently all <span className="highlight">{props.clusters.total}</span> clusters are in use.<br/>
+              <p>Currently all <span className="highlight">{props.clusters.total === 0 ? 40 : props.clusters.total}</span> clusters are in use.<br/>
                 {/*Please wait for{" "}*/}
                 {/*<span className="highlight">{timeUntilRelease}</span>. All{" "}*/}
                 {/*<span className="highlight">{props.clusters.total}</span>{" "}*/}
@@ -85,8 +86,8 @@ const Introduction = (props: {
       ) : null}
 
       <EncourageSection
-          title='BE PART OF THE HOPR ECOSYSTEM'
-          text='HOPR is building the transport layer privacy needed to make web3 work. Work with us to build dApps that change data privacy for good.'
+          title={props.clusters.available > 0 ? 'WANT TO BECOME PART OF THE HOPR ECOSYSTEM?' : 'BE PART OF THE HOPR ECOSYSTEM'}
+          text={props.clusters.available > 0 ? 'HOPR is building the transport layer privacy needed to make web3 work. Work with us to build dApps that change data privacy for good.' : 'HOPR is building the transport layer privacy needed to make web3 work. Work with us to build dApps that change data privacy for good.'}
           animationData={typingBotAnimation}
       />
     </div>
