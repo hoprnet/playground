@@ -47,7 +47,9 @@ const Cluster = (props: {
         <Playground />
         <div>
           <div className={styles.dAppDockTitle}>WELCOME TO YOUR PLAYGROUND</div>
-          You can now choose one of the dApps below and start exploring it. Be aware that your session will be terminated automatically after 20
+          Your cluster has started! You can now choose one of the dApps below and start exploring it.
+          <br/><br/>
+          Be aware that your session will be terminated automatically after 20
           minutes. <br/><br/>Time remaining:{" "}
           <span className="highlight">{timeRemaining}</span>.
         </div>
