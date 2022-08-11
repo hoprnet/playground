@@ -106,7 +106,7 @@ const Cluster = (props: {
                   )}
                 </div>
                 {selection !== -1 &&
-                  props.apps[selection].name === "hoprd-admin" && (
+                  props.apps[selection].key === "hoprd-admin" && (
                     <div className={styles.nodeDetailsLine}>
                       <div className={styles.nodeDetailsTitle}>
                         <strong>API key:</strong>
