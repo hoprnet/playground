@@ -100,7 +100,10 @@ export const dapps: Apps = [
     icon: "/dapp-icons/chess.svg",
     text: (
       <div>
-        Developer: https://github.com/vividwood
+        Developer:{" "}
+        <a href="https://github.com/vividwood" target="_blank" rel="noreferrer">
+            https://github.com/vividwood
+        </a>
         <br />
         <br />
         The classic game of strategy, now over HOPR!
@@ -112,7 +115,7 @@ export const dapps: Apps = [
   },
   {
     key: "myne-chat",
-    name: "Myne.chat",
+    name: "myne.chat",
     url: "https://app.myne.chat",
     icon: "/dapp-icons/myne.chat.svg",
     text: (

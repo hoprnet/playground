@@ -46,22 +46,19 @@ const Cluster = (props: {
         <div>
           <div className={styles.dAppDockTitle}>WELCOME TO YOUR PLAYGROUND</div>
           Your cluster has started! You can now choose one of the dApps below
-          and start exploring it.
-          <br />
-          <br />
-          Be aware that your session will be terminated automatically after 20
+          and start exploring it. Be aware that your session will be terminated automatically after 20
           minutes. <br />
           <br />
-          Time remaining: <span className="highlight">{timeRemaining}</span>.
+          Time remaining: <span className="highlight">{timeRemaining}</span>
         </div>
       </div>
 
       {/* show apps */}
-      <div className={styles.dAppDockTitle}>
-        <strong>PLAYGROUND DAPP DOCK</strong>
+      <div className={styles.dAppDockTitle2}>
+        <strong>dAPPS</strong>
       </div>
       <div className={styles.dAppDockSubtitle}>
-        Choose which dApp you`d like to play first
+        Choose which dApp you&apos;d like to play first
       </div>
       <Dock apps={props.apps} iconClicked={set_selection} />
 
@@ -69,7 +66,7 @@ const Cluster = (props: {
         <div className={styles.dAppDockTitle}>
           {selection !== -1 ? props.apps[selection].name : ""}
         </div>
-        <div>{selection !== -1 ? props.apps[selection].text : ""}</div>
+        <div className={styles.dAppTextContainer}>{selection !== -1 ? props.apps[selection].text : ""}</div>
         <div className={`bottomGap topGap ${styles.links}`}>
           {links?.map((link, index) => (
             <>
