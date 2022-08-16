@@ -1,4 +1,5 @@
 import { Apps } from "../types/index";
+import ReactPlayer from "react-player";
 
 export const dapps: Apps = [
   {
@@ -13,10 +14,16 @@ export const dapps: Apps = [
         </a>
         <br />
         <br />
-          Spin up five HOPR nodes for you to test via a command line. The familiar interface from our testnets, without any of the install steps!
-          <br />
+        Spin up five HOPR nodes for you to test via a command line. The familiar
+        interface from our testnets, without any of the install steps!
         <br />
-          Wait ~20s for the screen to turn from yellow to blue, then type &apos;help&apos; for a list of available commands, or visit our docs at <a href="https://docs.hoprnet.org/" target="_blank" rel="noreferrer">https://docs.hoprnet.org/</a> for more information.
+        <br />
+        Wait ~20s for the screen to turn from yellow to blue, then type
+        &apos;help&apos; for a list of available commands, or visit our docs at{" "}
+        <a href="https://docs.hoprnet.org/" target="_blank" rel="noreferrer">
+          https://docs.hoprnet.org/
+        </a>{" "}
+        for more information.
       </div>
     ),
   },
@@ -34,10 +41,20 @@ export const dapps: Apps = [
         </a>
         <br />
         <br />
-        Visualizer draws a graphical representation of the HOPR network, showing all the nodes and the connections between them.
+        Visualizer draws a graphical representation of the HOPR network, showing
+        all the nodes and the connections between them.
         <br />
         <br />
-        <strong>Disclaimer: </strong>The data in this app are from our last public testnet (<a href="https://medium.com/hoprnet/matterhorn-testnet-is-coming-5a69ad9cb815" target="_blank" rel="noreferrer">Matterhorn</a>) and do not represent the Playground state.
+        <strong>Disclaimer: </strong>The data in this app are from our last
+        public testnet (
+        <a
+          href="https://medium.com/hoprnet/matterhorn-testnet-is-coming-5a69ad9cb815"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Matterhorn
+        </a>
+        ) and do not represent the Playground state.
       </div>
     ),
   },
@@ -102,14 +119,19 @@ export const dapps: Apps = [
       <div>
         Developer:{" "}
         <a href="https://github.com/vividwood" target="_blank" rel="noreferrer">
-            https://github.com/vividwood
+          https://github.com/vividwood
         </a>
         <br />
         <br />
         The classic game of strategy, now over HOPR!
         <br />
         <br />
-        Find a friend (or enemy) to play against, share the link and PeerID of another node in your Playground cluster and follow the connection instructions to play a game.
+        Find a friend (or enemy) to play against, share the link and PeerID of
+        another node in your Playground cluster and follow the connection
+        instructions to play a game.
+        <br />
+        <br />
+        <ReactPlayer url="./videos/chess_video_manual.webm" controls />
       </div>
     ),
   },
@@ -129,27 +151,51 @@ export const dapps: Apps = [
         myne.chat – Chat. Finally private.
         <br />
         <br />
-        Chat should be private but it isn&apos;t. Your identity is exposed, along with your data and metadata. Myne will make chat private and will pay you for making the internet more secure.
+        Chat should be private but it isn&apos;t. Your identity is exposed,
+        along with your data and metadata. Myne will make chat private and will
+        pay you for making the internet more secure.
         <br />
         <br />
-        Try out the myne experience in this version for Playground. Share links and PeerIDs with friends to give them access to a node and message with you.
+        Try out the myne experience in this version for Playground. Share links
+        and PeerIDs with friends to give them access to a node and message with
+        you.
+        <br />
+        <br />
+        <ReactPlayer url="./videos/myne_video_manual.webm" controls />
       </div>
     ),
   },
-    {
-        key: "separator",
-    },
-    {
-        key: "your-dApp",
-        name: "your own dApp",
-        icon: "/dapp-icons/settings.svg",
-        text: (
-            <div>
-                Did you know you can use our HOPR nodes to run your own dApp? Connect to the nodes below for easy and costless testing!
-                <br />
-                <br />
-                Make sure that your dApp follows the <a href="https://github.com/hoprnet/hopr-community/blob/main/DAPP_STANDARD.md" target="_blank" rel="noreferrer">HOPR dApp standard</a>, and visit our docs for information on our <a href="https://docs.hoprnet.org/developers/rest-api" target="_blank" rel="noreferrer">latest API</a>.
-            </div>
-        ),
-    },
+  {
+    key: "separator",
+  },
+  {
+    key: "your-dApp",
+    name: "your own dApp",
+    icon: "/dapp-icons/settings.svg",
+    text: (
+      <div>
+        Did you know you can use our HOPR nodes to run your own dApp? Connect to
+        the nodes below for easy and costless testing!
+        <br />
+        <br />
+        Make sure that your dApp follows the{" "}
+        <a
+          href="https://github.com/hoprnet/hopr-community/blob/main/DAPP_STANDARD.md"
+          target="_blank"
+          rel="noreferrer"
+        >
+          HOPR dApp standard
+        </a>
+        , and visit our docs for information on our{" "}
+        <a
+          href="https://docs.hoprnet.org/developers/rest-api"
+          target="_blank"
+          rel="noreferrer"
+        >
+          latest API
+        </a>
+        .
+      </div>
+    ),
+  },
 ];
