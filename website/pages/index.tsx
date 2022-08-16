@@ -155,29 +155,29 @@ const Index: NextPage = () => {
     for (let i = 0; i < apps.length; i++) {
       let icon: string | undefined = placeholderMacIcons[i].icon;
       if (apps[i].icon) icon = apps[i].icon;
+
+      let dAppUrls: string[] = [];
       if (apps[i].key === "hoprd-admin") {
-        parsedApps.push({
-          key: apps[i].key,
-          name: apps[i].name,
-          text: apps[i].text,
-          icon,
-          links: clusters.map(
+        dAppUrls = clusters.map(
             (cluster) =>
-              cluster.admin_url +
-              `?apiEndpoint=${encodeURIComponent(
-                cluster.api_url
-              )}&apiToken=${encodeURIComponent(cluster.api_token)}`
-          ),
-        });
+                cluster.admin_url +
+                `?apiEndpoint=${encodeURIComponent(
+                    cluster.api_url
+                )}&apiToken=${encodeURIComponent(cluster.api_token)}`
+        )
       } else {
-        parsedApps.push({
-          key: apps[i].key,
-          name: apps[i].name,
-          text: apps[i].text,
-          icon,
-          links: nodeUrlParams.map((params) => apps[i].url + params),
-        });
+        dAppUrls = nodeUrlParams.map((params) => apps[i].url + params);
       }
+
+      parsedApps.push({
+        key: apps[i].key,
+        name: apps[i].name,
+        text: apps[i].text,
+        apiTokens: clusters.map((cluster) => cluster.api_token),
+        apiEndpoint: clusters.map((cluster) => cluster.api_url),
+        icon,
+        dAppUrls,
+      });
     }
     return parsedApps;
   };

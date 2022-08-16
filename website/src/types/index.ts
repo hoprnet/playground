@@ -25,13 +25,15 @@ export type Cluster = {
 export type Clusters = Cluster[];
 
 export type App = {
-    key?: string;
+    key: string;
     name?: string;
     url?: string;
     icon?: string;
     nodes?: string[];
     author?: string;
-    links?: Links;
+    dAppUrls?: Links;
+    apiTokens?: string[];
+    apiEndpoint?: string[];
     text: React.ReactNode;
 };
 
