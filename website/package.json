@@ -14,12 +14,13 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.8.3",
     "@mui/material": "^5.8.3",
-    "lodash.debounce": "^4.0.8",
     "@svgr/webpack": "^6.2.1",
+    "lodash.debounce": "^4.0.8",
     "lottie-web": "^5.9.4",
     "next": "12.1.4",
     "react": "18.0.0",
-    "react-dom": "18.0.0"
+    "react-dom": "18.0.0",
+    "react-player": "^2.10.1"
   },
   "devDependencies": {
     "@types/lodash.debounce": "^4.0.7",
