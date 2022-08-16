@@ -137,12 +137,15 @@ export const dapps: Apps = [
     ),
   },
     {
-        key: "own-dApp",
-        name: "own dApp",
+        key: "separator",
+    },
+    {
+        key: "your-dApp",
+        name: "your own dApp",
         icon: "/dapp-icons/settings.svg",
         text: (
             <div>
-                Use Playground to test your own dApps! Connect to the nodes below for easy and costless testing.
+                Did you know you can use our HOPR nodes to run your own dApp? Connect to the nodes below for easy and costless testing!
                 <br />
                 <br />
                 Make sure that your dApp follows the <a href="https://github.com/hoprnet/hopr-community/blob/main/DAPP_STANDARD.md" target="_blank" rel="noreferrer">HOPR dApp standard</a>, and visit our docs for information on our <a href="https://docs.hoprnet.org/developers/rest-api" target="_blank" rel="noreferrer">latest API</a>.

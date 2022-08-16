@@ -43,9 +43,15 @@ const StyledDock = styled.div`
         bottom: 1px;
       }
     }
+    
+    .li-separator{
+      width: 1px;
+      height: 72px;
+      background: white;
+      margin: 0 3px;
+    }
 
     div.icon-in-dock  {
-      list-style: none;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -183,6 +189,14 @@ function Dock(props) {
             <div className="dock-container">
                 {
                     props.apps.map((app, index) =>{
+                        if (app.key === "separator") {
+                            return (
+                                <div
+                                    className={`li-separator`}
+                                    key={`li-${index}`}
+                                />
+                            )
+                        }
                         return (
                             <div
                                 className={`li-${index} icon-in-dock ${index === indexActive ? 'li-active' : ''}`}
