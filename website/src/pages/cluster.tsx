@@ -73,10 +73,10 @@ const Cluster = (props: {
               <NodeCard
                   index={index}
                   key={`dApp-Node-${index}`}
-                  dAppUrl={props.apps[selection].key !== "own-dApp" && link}
+                  dAppUrl={props.apps[selection].key !== "your-dApp" && link}
                   peerId={props.peerIds[index]}
-                  apiEndpoint={["own-dApp"].includes(props.apps[selection].key) && props.clusters[index].api_url}
-                  apiToken={["hoprd-admin", "own-dApp"].includes(props.apps[selection].key) && props.clusters[index].api_token}
+                  apiEndpoint={["your-dApp"].includes(props.apps[selection].key) && props.clusters[index].api_url}
+                  apiToken={["hoprd-admin", "your-dApp"].includes(props.apps[selection].key) && props.clusters[index].api_token}
               />
           ))}
         </div>

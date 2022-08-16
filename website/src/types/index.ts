@@ -34,7 +34,7 @@ export type App = {
     dAppUrls?: Links;
     apiTokens?: string[];
     apiEndpoint?: string[];
-    text: React.ReactNode;
+    text?: React.ReactNode;
 };
 
 export type Links = string[] | undefined;
