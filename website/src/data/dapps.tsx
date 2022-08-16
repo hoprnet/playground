@@ -132,7 +132,21 @@ export const dapps: Apps = [
         Chat should be private but it isn&apos;t. Your identity is exposed, along with your data and metadata. Myne will make chat private and will pay you for making the internet more secure.
         <br />
         <br />
-        Try out the myne experience in this version for Playground. Share links and PeerIDs with friends to give them access to a node and message with you.      </div>
+        Try out the myne experience in this version for Playground. Share links and PeerIDs with friends to give them access to a node and message with you.
+      </div>
     ),
   },
+    {
+        key: "own-dApp",
+        name: "own dApp",
+        icon: "/dapp-icons/settings.svg",
+        text: (
+            <div>
+                Use Playground to test your own dApps! Connect to the nodes below for easy and costless testing.
+                <br />
+                <br />
+                Make sure that your dApp follows the <a href="https://github.com/hoprnet/hopr-community/blob/main/DAPP_STANDARD.md" target="_blank" rel="noreferrer">HOPR dApp standard</a>, and visit our docs for information on our <a href="https://docs.hoprnet.org/developers/rest-api" target="_blank" rel="noreferrer">latest API</a>.
+            </div>
+        ),
+    },
 ];

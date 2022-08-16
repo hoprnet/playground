@@ -9,6 +9,7 @@ import LinkHolder from "../components/link-holder";
 import Section from "../future-hopr-lib-components/Section";
 import Dock from "../future-hopr-lib-components/Dock";
 import CopyButton from "../future-hopr-lib-components/CopyButton";
+import NodeCard from "../components/node-card";
 
 //Types
 import { App, Apps, Clusters, ClustersAvailability, Links } from "../types";
@@ -36,7 +37,7 @@ const Cluster = (props: {
     return () => clearInterval(interval);
   }, []);
 
-  const links: Links = selection !== -1 ? props.apps[selection].links : [];
+  const dAppUrls: Links = selection !== -1 ? props.apps[selection].dAppUrls : [];
 
   return (
     <Section gradient>
@@ -68,56 +69,15 @@ const Cluster = (props: {
         </div>
         <div className={styles.dAppTextContainer}>{selection !== -1 ? props.apps[selection].text : ""}</div>
         <div className={`bottomGap topGap ${styles.links}`}>
-          {links?.map((link, index) => (
-            <>
-              <div className={`${styles.nodeDetails}`}>
-                <div className={styles.nodeDetailsLine}>
-                  <strong>Node {index}</strong>
-                </div>
-                <div className={styles.nodeDetailsLine}>
-                  <div className={styles.nodeDetailsTitle}>
-                    <strong>Url:</strong>
-                  </div>
-                  <div className={styles.nodeDetailsData}>
-                    <a href={link} target="_blank" rel="noreferrer">
-                      {link}
-                    </a>
-                  </div>
-                  <div className={styles.nodeDetailsCopy}>
-                    <CopyButton copy={link} />
-                  </div>
-                </div>
-                <div className={styles.nodeDetailsLine}>
-                  <div className={styles.nodeDetailsTitle}>
-                    <strong>Peer ID:</strong>
-                  </div>
-                  <div className={styles.nodeDetailsData}>
-                    {props.peerIds?.length > 0
-                      ? props.peerIds[index]
-                      : "loading..."}
-                  </div>
-                  {props.peerIds[index] && (
-                    <div className={styles.nodeDetailsCopy}>
-                      <CopyButton copy={props.peerIds[index]} />
-                    </div>
-                  )}
-                </div>
-                {selection !== -1 &&
-                  props.apps[selection].key === "hoprd-admin" && (
-                    <div className={styles.nodeDetailsLine}>
-                      <div className={styles.nodeDetailsTitle}>
-                        <strong>API key:</strong>
-                      </div>
-                      <div className={styles.nodeDetailsData}>
-                        {props.clusters[index].api_token}
-                      </div>
-                      <div className={styles.nodeDetailsCopy}>
-                        <CopyButton copy={props.clusters[index].api_token} />
-                      </div>
-                    </div>
-                  )}
-              </div>
-            </>
+          {dAppUrls?.map((link, index) => (
+              <NodeCard
+                  index={index}
+                  key={`dApp-Node-${index}`}
+                  dAppUrl={props.apps[selection].key !== "own-dApp" && link}
+                  peerId={props.peerIds[index]}
+                  apiEndpoint={["own-dApp"].includes(props.apps[selection].key) && props.clusters[index].api_url}
+                  apiToken={["hoprd-admin", "own-dApp"].includes(props.apps[selection].key) && props.clusters[index].api_token}
+              />
           ))}
         </div>
       </div>
