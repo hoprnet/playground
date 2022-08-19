@@ -174,11 +174,7 @@ export const dapps: Apps = [
     icon: "/dapp-icons/settings.svg",
     text: (
       <div>
-        Did you know you can use our HOPR nodes to run your own dApp? Connect to
-        the nodes below for easy and costless testing!
-        <br />
-        <br />
-        Make sure that your dApp follows the{" "}
+          Did you know that you can use the 5 HOPR Playground nodes for more than just the apps that are provided here? You can connect to the HORP Playground nodes from any app that is compatible with the{" "}
         <a
           href="https://github.com/hoprnet/hopr-community/blob/main/DAPP_STANDARD.md"
           target="_blank"
@@ -186,15 +182,23 @@ export const dapps: Apps = [
         >
           HOPR dApp standard
         </a>
-        , and visit our docs for information on our{" "}
+          . Visit our{" "}
         <a
           href="https://docs.hoprnet.org/developers/rest-api"
           target="_blank"
           rel="noreferrer"
         >
-          latest API
+            docs for tutorials
         </a>
-        .
+        {" "}on how to build HOPR apps that are compatible with our API. And visit the{" "}
+          <a
+              href="https://bounties.hoprnet.org/"
+              target="_blank"
+              rel="noreferrer"
+          >
+              HOPR Bounties portal to earn money for building dApps
+          </a>
+          !
       </div>
     ),
   },
