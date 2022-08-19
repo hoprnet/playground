@@ -182,7 +182,7 @@ export const dapps: Apps = [
         >
           HOPR dApp standard
         </a>
-          . Visit our
+          . Visit our{" "}
         <a
           href="https://docs.hoprnet.org/developers/rest-api"
           target="_blank"
