@@ -74,3 +74,12 @@ cluster though to e.g. 10 minutes: `make start-satellite max_lifetime=600`
 The website will be accessible at `http://localhost:8996`.
 
 The satellite API server will be accessible at `http://localhost:8997`.
+
+# Deployment
+
+
+1. Ensure the Ansible vault password is stored in `ansible/.ansible-vault-pw`
+2. Get password for OS user `minion` from shared secret storage
+3. Configure version of hoprd to be used in
+	 `ansible/inventories/all/group_vars/all/vars.yml`
+4. Run Ansible playbook: `cd ansible && make configure-servers`
