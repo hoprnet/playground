@@ -136,6 +136,27 @@ export const dapps: Apps = [
     ),
   },
   {
+    key: "hopr-dots-and-boxes",
+    name: "Dots and boxes",
+    url: "https://hopr-dots-and-boxes.vercel.app/",
+    author: "vividwood",
+    icon: "/dapp-icons/_dotsandboxes.svg",
+  },
+  {
+    key: "hopr-tic-tac-toe",
+    name: "Tic Tac Toe",
+    url: "https://hopr-tic-tac-toe.vercel.app/",
+    author: "h1xten",
+    icon: "/dapp-icons/_tiktactoe.svg",
+  },
+  {
+    key: "hopr-hangman",
+    name: "Hangman",
+    url: "https://hopr-hangman.vercel.app/",
+    author: "ginanisque",
+    icon: "/dapp-icons/_hangman.svg",
+  },
+  {
     key: "myne-chat",
     name: "myne.chat",
     url: "https://app.myne.chat",

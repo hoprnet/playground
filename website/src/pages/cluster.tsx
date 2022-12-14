@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Router from "next/router";
 import styles from "../../styles/pages/cluster.module.scss";
 import { secondsToTime } from "../utils";
@@ -20,9 +20,11 @@ const Cluster = (props: {
   clusters: Clusters;
   clustersValidUntil: number;
   peerIds: string[];
+  dev: Boolean;
 }) => {
   const [selection, set_selection] = useState<number>(-1);
   const [timeRemaining, set_timeRemaining] = useState<string>("20:00");
+  const devOnly = useRef(props.dev);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -34,6 +36,9 @@ const Cluster = (props: {
         set_timeRemaining(secondsToTime(Math.floor(leftSeconds)));
       }
     }, 1000);
+    if(devOnly.current){
+      clearInterval(interval)
+    }
     return () => clearInterval(interval);
   }, []);
 

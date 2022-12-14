@@ -18,6 +18,7 @@ import { Clusters, ClustersAvailability, Apps } from "../src/types";
 
 const Index: NextPage = () => {
   const clusterOn = useRef(false);
+  const devOnly = useRef(false); //for DEV purposes
   const [clusters, set_clusters] = useState<Clusters>([]);
   const [peerIds, set_peerIds] = useState<string[]>([]);
   const [clustersValidUntil, set_clustersValidUntil] = useState<number>(0);
@@ -25,8 +26,7 @@ const Index: NextPage = () => {
     useState<ClustersAvailability>({
       total: 0,
       used: 0,
-      available: 0,
-      //  available: 1, //dev
+      available: devOnly.current ? 1 : 0,
       secondsUntilRelease: 0,
     });
   const urlParams = !isSSR ? getUrlParams(location) : {};
@@ -105,8 +105,10 @@ const Index: NextPage = () => {
       });
 
     // DEV only
-    // sclusterOn.current = true;
-    // set_clusters(placeholderResponse.cluster_nodes);
+    if(devOnly.current){
+      clusterOn.current = true;
+      set_clusters(placeholderResponse.cluster_nodes);
+    }
   };
 
   const getPeerIds = async (clusters: Clusters) => {
@@ -196,6 +198,7 @@ const Index: NextPage = () => {
           apps={parseApps(dapps, clusters)}
           clustersValidUntil={clustersValidUntil}
           peerIds={peerIds}
+          dev={devOnly.current}
         />
       )}
     </Layout>

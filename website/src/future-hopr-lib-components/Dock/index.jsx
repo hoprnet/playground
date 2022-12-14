@@ -113,7 +113,7 @@ const StyledDock = styled.div`
     }
   }
 
-  @media only screen and (max-width: 500px) {
+  @media only screen and (max-width: 786px) {
     height: unset;
     .dock-container {
       flex-wrap: wrap;
