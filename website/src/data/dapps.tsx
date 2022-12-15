@@ -141,6 +141,20 @@ export const dapps: Apps = [
     url: "https://hopr-dots-and-boxes.vercel.app/",
     author: "vividwood",
     icon: "/dapp-icons/_dotsandboxes.svg",
+    text: (
+      <div>
+        Developer:{" "}
+        <a href="https://github.com/vividwood" target="_blank" rel="noreferrer">
+          https://github.com/vividwood
+        </a>
+        <br />
+        <br />
+        Compete with an opponent to complete the most boxes!
+        <br />
+        <br />
+        Take it in turns to connect two dots in the grid. If you complete a box, you control it and get another turn. Play on larger grids for a more complex game.
+      </div>
+    ),
   },
   {
     key: "hopr-tic-tac-toe",
@@ -148,6 +162,20 @@ export const dapps: Apps = [
     url: "https://hopr-tic-tac-toe.vercel.app/",
     author: "h1xten",
     icon: "/dapp-icons/_tiktactoe.svg",
+    text: (
+      <div>
+        Developer:{" "}
+        <a href="https://github.com/h1xten" target="_blank" rel="noreferrer">
+          https://github.com/h1xten
+        </a>
+        <br />
+        <br />
+        Can you make three in a row?
+        <br />
+        <br />
+        Take it in turns to add your symbol to the grid. Complete a line of three horinzontally, vertically or diagonally to win!
+      </div>
+    ),
   },
   {
     key: "hopr-hangman",
@@ -155,6 +183,20 @@ export const dapps: Apps = [
     url: "https://hopr-hangman.vercel.app/",
     author: "ginanisque",
     icon: "/dapp-icons/_hangman.svg",
+    text: (
+      <div>
+        Developer:{" "}
+        <a href="https://github.com/ginanisque" target="_blank" rel="noreferrer">
+          https://github.com/ginanisque
+        </a>
+        <br />
+        <br />
+        Play solo or with others to complete the words!
+        <br />
+        <br />
+        Guess one letter at a time to complete the words. Don't make too many wrong guesses or... well the clue is in the name.
+       </div>
+    ),
   },
   {
     key: "myne-chat",
