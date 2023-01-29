@@ -36,7 +36,7 @@ packages_standard:
 satellite_domain: playground-alpha.hoprtech.net
 satellite_clusters_domain: playground.hoprnet.org
 # pin hoprd release version
-pluto_image: gcr.io/hoprassociation/hopr-pluto:1.90.68
+pluto_image: gcr.io/hoprassociation/hopr-pluto:1.90.69
 pluto_container_count: 40
 pluto_container_max_lifetime: 1200
 pluto_container_base_port: 19000
