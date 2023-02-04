@@ -49,7 +49,7 @@ frontend satellite_http
 	use_backend nginx if is_httpchallenge url_satellite
 
 frontend satellite_https
-	bind :443,:::443 alpn h2,http/1.1 ssl crt /etc/acme/{{ satellite_domain }}/haproxy.pem
+	bind :443,:::443 alpn h2,http/1.1 ssl crt /etc/acme/{{ satellite_domain }}_ecc/haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
@@ -61,7 +61,7 @@ frontend satellite_https
 	use_backend satellite if url_satellite
 
 frontend satellite_clusters_admin
-	bind :3000,:::3000 alpn h2,http/1.1 ssl crt /etc/acme/*.{{ satellite_clusters_domain }}/haproxy.pem
+	bind :3000,:::3000 alpn h2,http/1.1 ssl crt /etc/acme/*.{{ satellite_clusters_domain }}_ecc/haproxy.pem
 
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
@@ -73,8 +73,7 @@ frontend satellite_clusters_admin
 	use_backend satellite_clusters_admin if url_satellite
 
 frontend satellite_clusters_api
-	bind :3001,:::3001 alpn h2,http/1.1 ssl crt /etc/acme/*.{{ satellite_clusters_domain }}/haproxy.pem
-
+	bind :3001,:::3001 alpn h2,http/1.1 ssl crt /etc/acme/*.{{ satellite_clusters_domain }}_ecc/haproxy.pem
 	# handle CORS
 	http-request lua.cors "GET,POST,PUT,DELETE,OPTIONS" "*", "Accept,Accept-Content,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With,x-auth-token"
 	http-response lua.cors
