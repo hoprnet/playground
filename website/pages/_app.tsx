@@ -9,7 +9,7 @@ function App({ Component, pageProps }: AppProps) {
         <title>HOPR | Playground</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="shortcut icon" href="/hopr-favicon.svg" />
-        <script src="https://cdn.usefathom.com/script.js" data-site="CYGLLAKV" defer></script>
+        <script src="https://cdn.usefathom.com/script.js" data-site="CYGLLAKV" data-included-domains="playground.hoprnet.org" defer></script>
       </Head>
       <Component {...pageProps} />
     </>
